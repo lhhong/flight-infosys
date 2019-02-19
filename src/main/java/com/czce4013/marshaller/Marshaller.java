@@ -26,7 +26,7 @@ public class Marshaller {
         return Bytes.toArray(res);
     }
 
-    public static List<Byte> marshallObject(Object obj, List<Byte> res) {
+    private static void marshallObject(Object obj, List<Byte> res) {
 
         Field[] fields = obj.getClass().getDeclaredFields();
         for (Field f: fields) {
@@ -47,12 +47,10 @@ public class Marshaller {
                 e.printStackTrace();
             }
         }
-        return res;
     }
 
-    private static void addObjectToBytes(String type, Object o, List<Byte> res) {
+    private static void marshallSelect(String[] typeWithGeneric, Object o, List<Byte> res) {
 
-        String[] typeWithGeneric = type.split("[<>]");
         switch (typeWithGeneric[0]) {
             case "java.lang.String":
                 marshallString(o, res);
@@ -64,7 +62,7 @@ public class Marshaller {
                 marshallDouble(o, res);
                 break;
             case "java.util.List":
-                marshallList(o, typeWithGeneric[1], res);
+                marshallList(o, Arrays.copyOfRange(typeWithGeneric,1,typeWithGeneric.length), res);
                 break;
             default:
                 marshallObject(o, res);
@@ -73,26 +71,19 @@ public class Marshaller {
 
     }
 
-    private static void marshallList(Object o, String genericType, List<Byte> res) {
+    private static void addObjectToBytes(String type, Object o, List<Byte> res) {
+
+        String[] typeWithGeneric = type.split("[<>]");
+        marshallSelect(typeWithGeneric, o, res);
+    }
+
+    private static void marshallList(Object o, String[] typeWithGeneric, List<Byte> res) {
 
         List<?> list = (List<?>) o;
         res.addAll(intToByteList(list.size()));
 
         for (Object item: list) {
-            switch(genericType) {
-                case "java.lang.String":
-                    marshallString(item, res);
-                    break;
-                case "java.lang.Integer":
-                    marshallInt(item, res);
-                    break;
-                case "java.lang.Double":
-                    marshallDouble(item, res);
-                    break;
-                default:
-                    marshallObject(item, res);
-                    break;
-            }
+            marshallSelect(typeWithGeneric, item, res);
         }
     }
 
