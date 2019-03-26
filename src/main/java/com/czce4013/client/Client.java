@@ -2,40 +2,38 @@ package com.czce4013.client;
 
 import com.czce4013.network.UDPcommunicator;
 
-import java.util.Scanner;
-
 public class Client {
     private UDPcommunicator communicator;
 
-
-    public Client(){
-
+    public static void main(String[] args){
+        Client s = new Client();
+        s.connect("192.168.1.71",2222);
+        while (true) {
+            s.run();
+        }
     }
 
     public void run() {
-        printMenu();
+        ClientTextUI.printMenu();
 
-        Scanner keyboardScanner = new Scanner(System.in);
-        int userOption;
-        try{
-             userOption = keyboardScanner.nextInt();
-        }
-        catch(Exception e){
-            userOption = 0;
-        }
+        int userOption = ClientTextUI.getUserOption();
 
         switch (userOption) {
             case 1:
-                findFlightNo();
+                String[] sourceNDest = ClientTextUI.getSourceNDest();
+                findFlightNo(sourceNDest);
                 break;
             case 2:
-                queryFlightDetails();
+                int flightNo = ClientTextUI.getFlightNo();
+                queryFlightDetails(flightNo);
                 break;
             case 3:
-                makeReservation();
+                int[] reservationDetails = ClientTextUI.getReservationDetails();
+                makeReservation(reservationDetails);
                 break;
             case 4:
-                monitorFlight();
+                int flightNum = ClientTextUI.getFlightNo();
+                monitorFlight(flightNum);
                 break;
             case 5:
                 unknown1();
@@ -50,43 +48,22 @@ public class Client {
         }
     }
 
-    public static void main(String[] args){
-        Client s = new Client();
-        s.connect("192.168.1.71",2222);
-        while (true) {
-            s.run();
-        }
-    }
-
-    private void printMenu(){
-        System.out.println("========== CE 4013 Flight Management System ==========");
-        System.out.println("Choose item:");
-        System.out.println("[1] Find Flight Number");
-        System.out.println("[2] Query Flight Details");
-        System.out.println("[3] Make Flight Reservation");
-        System.out.println("[4] Monitor Flight");
-        System.out.println("[5] ?????");
-        System.out.println("[6] ??????");
-        System.out.println("[7] Exit Application");
-    }
-
-
-    private void findFlightNo() {
+    private void findFlightNo(String[] SourceNDest) {
         //TODO
-        communicator.send("hello");
+        communicator.send(SourceNDest[0]);
         String receivedStr = communicator.receive();
         System.out.println(receivedStr);
     }
 
-    private void queryFlightDetails() {
+    private void queryFlightDetails(int flightNo) {
         //TODO
     }
 
-    private void makeReservation() {
+    private void makeReservation(int[] reservationDetails) {
         //TODO
     }
 
-    private void monitorFlight() {
+    private void monitorFlight(int flightNo) {
         //TODO
     }
 
