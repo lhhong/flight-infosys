@@ -30,6 +30,7 @@ public class ClientTextUI {
     }
 
     public static String[] getSourceNDest() {
+        keyboardScanner.nextLine();
         String[] SourceNDestination = new String[2];
         System.out.println("\n========== [1] Find Flight Number ==========");
         System.out.println("Enter Source Location: ");
@@ -56,4 +57,5 @@ public class ClientTextUI {
         reservationDetails[1] =  keyboardScanner.nextInt();
         return reservationDetails;
     }
+
 }

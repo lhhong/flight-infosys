@@ -2,6 +2,8 @@ package com.czce4013.client;
 
 import com.czce4013.network.UDPcommunicator;
 
+import java.util.Arrays;
+
 public class Client {
     private UDPcommunicator communicator;
 
@@ -50,6 +52,7 @@ public class Client {
 
     private void findFlightNo(String[] SourceNDest) {
         //TODO
+        System.out.println(Arrays.toString(SourceNDest));
         communicator.send(SourceNDest[0]);
         String receivedStr = communicator.receive();
         System.out.println(receivedStr);
@@ -57,14 +60,17 @@ public class Client {
 
     private void queryFlightDetails(int flightNo) {
         //TODO
+        System.out.println(flightNo);
     }
 
     private void makeReservation(int[] reservationDetails) {
         //TODO
+        System.out.println(Arrays.toString(reservationDetails));
     }
 
     private void monitorFlight(int flightNo) {
         //TODO
+        System.out.println(flightNo);
     }
 
     private void unknown1() {
