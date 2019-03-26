@@ -1,8 +1,13 @@
 package com.czce4013.client;
 
+import com.czce4013.network.UDPcommunicator;
+
 import java.util.Scanner;
 
 public class Client {
+    private UDPcommunicator communicator;
+
+
     public Client(){
 
     }
@@ -47,6 +52,7 @@ public class Client {
 
     public static void main(String[] args){
         Client s = new Client();
+        s.connect("192.168.1.71",2222);
         while (true) {
             s.run();
         }
@@ -67,6 +73,9 @@ public class Client {
 
     private void findFlightNo() {
         //TODO
+        communicator.send("hello");
+        String receivedStr = communicator.receive();
+        System.out.println(receivedStr);
     }
 
     private void queryFlightDetails() {
@@ -87,5 +96,9 @@ public class Client {
 
     private void unknown2() {
         //TODO
+    }
+
+    private void connect (String ipAddress,int portNumber){
+        communicator = new UDPcommunicator(ipAddress,portNumber);
     }
 }
