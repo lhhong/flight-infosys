@@ -7,10 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="flight-infosys" />
+        <module name="flight-infosys2" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="flight-infosys" target="10" />
+      <module name="flight-infosys2" target="10" />
     </bytecodeTargetLevel>
   </component>
 </project>
