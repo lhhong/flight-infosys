@@ -2,7 +2,6 @@ package com.czce4013.marshaller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.annotation.JSONType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class MarshallerTest {
@@ -23,15 +20,16 @@ public class MarshallerTest {
     @NoArgsConstructor
     @Getter
     static class TestClass extends Marshallable{
-        @FieldId(0)
-        String a;
-        @FieldId(2)
-        int b;
-        @FieldId(3)
-        List<Integer> c;
-        @FieldId(4)
-        TestSubClass d;
 
+        String a;
+        int b;
+        List<Integer> c;
+        TestSubClass d;
+        double e;
+
+        // Will not serialize data in IgnoreField
+        @IgnoreField
+        // This annotation is just for JSON testing to check the code, not needed in entities
         @JSONField(serialize = false, deserialize = false)
         double noSerialize;
 
@@ -42,6 +40,7 @@ public class MarshallerTest {
                     ", b=" + b +
                     ", c=" + c +
                     ", d=" + d +
+                    ", e=" + e +
                     ", noSerialize=" + noSerialize +
                     '}';
         }
@@ -51,7 +50,6 @@ public class MarshallerTest {
     @NoArgsConstructor
     @Getter
     static class TestSubClass {
-        @FieldId(0)
         int a;
 
         @Override
@@ -66,7 +64,7 @@ public class MarshallerTest {
     public void testMarshall() {
         TestSubClass scObject = new TestSubClass(4);
         List<Integer> l = Arrays.asList(6,7,8);
-        TestClass cObject = new TestClass("string-a", 2, l, scObject, 1.23);
+        TestClass cObject = new TestClass("string-a", 2, l, scObject, 4.32, 1.23);
 
         byte[] byteList = cObject.marshall();
         TestClass recast = Marshallable.unmarshall(byteList, TestClass.class);

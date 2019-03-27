@@ -46,23 +46,25 @@ public class Marshaller {
             return null;
         }
         Field[] fields = clazz.getDeclaredFields();
-        Map<Byte, Field> fieldTypeMap = new HashMap<>();
+        Map<String, Field> fieldTypeMap = new HashMap<>();
         for (Field f: fields) {
-            FieldId fieldId = f.getAnnotation(FieldId.class);
-            if (fieldId == null) continue;
 
-            fieldTypeMap.put(fieldId.value(), f);
+            if (f.getAnnotation(IgnoreField.class) != null) continue;
+
+            fieldTypeMap.put(f.getName(), f);
             f.setAccessible(true);
         }
 
-        while (byteList.size() > 0) {
-            byte fieldId = byteList.remove(0);
-            Field field = fieldTypeMap.get(fieldId);
+        while (fieldTypeMap.size() > 0) {
+            //byte fieldId = byteList.remove(0);
+            String fieldName = unmarshallString(byteList);
+            Field field = fieldTypeMap.get(fieldName);
             try {
                 field.set(obj, unmarshallSelect(byteList, field.getGenericType()));
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+            fieldTypeMap.remove(fieldName);
         }
 
         return obj;
@@ -72,18 +74,16 @@ public class Marshaller {
 
         Field[] fields = obj.getClass().getDeclaredFields();
         for (Field f: fields) {
-            FieldId fieldId = f.getAnnotation(FieldId.class);
 
-            if (fieldId == null) continue;
+            if (f.getAnnotation(IgnoreField.class) != null) continue;
 
-            byte id = fieldId.value();
-            res.add(id);
+            marshallString(f.getName(), res);
 
             String type = f.getGenericType().getTypeName();
             f.setAccessible(true);
             try {
                 Object o = f.get(obj);
-                logger.debug("Type: {}, Id: {}, Val: {}", type, id, o);
+                logger.debug("Type: {}, Name: {}, Val: {}", type, f.getName(), o);
                 addObjectToBytes(type, o, res);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -211,12 +211,12 @@ public class Marshaller {
         return Bytes.asList(array);
     }
 
-    private static int doubleFromByteList(List<Byte> byteList) {
+    private static double doubleFromByteList(List<Byte> byteList) {
         byte[] doubleBytes = new byte[Double.BYTES];
         for (int i = 0; i < Double.BYTES; i++) {
             doubleBytes[i] = byteList.remove(0);
         }
-        return ByteBuffer.wrap(doubleBytes).getInt();
+        return ByteBuffer.wrap(doubleBytes).getDouble();
     }
 
     private static List<Byte> doubleToByteList(double v) {
