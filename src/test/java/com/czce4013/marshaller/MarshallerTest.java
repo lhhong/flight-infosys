@@ -69,9 +69,18 @@ public class MarshallerTest {
         byte[] byteList = cObject.marshall();
         TestClass recast = Marshallable.unmarshall(byteList, TestClass.class);
 
-        logger.info("old: {}", cObject);
-        logger.info("new: {}", recast);
+        // Another way to use unmarshall if you don't know the class type
+        TestClass recast2 = null;
+        Object o = Marshallable.unmarshall(byteList);
+        if (o instanceof TestClass) {
+            recast2 = (TestClass) o;
+        }
+
+        logger.info("original: {}", cObject);
+        logger.info("recast: {}", recast);
+        logger.info("recast2: {}", recast2);
         assert JSON.toJSON(cObject).equals(JSON.toJSON(recast));
+        assert JSON.toJSON(cObject).equals(JSON.toJSON(recast2));
 
     }
 

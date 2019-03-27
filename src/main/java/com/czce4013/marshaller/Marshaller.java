@@ -15,14 +15,14 @@ public class Marshaller {
 
     private static final Logger logger = LoggerFactory.getLogger(Marshaller.class);
 
-    public static <T extends Marshallable> T unmarshall(byte[] data, Class<T> clazz) {
+    public static Object unmarshall(byte[] data) throws ClassNotFoundException {
         List<Byte> byteList = new LinkedList<>(Bytes.asList(data));
         String className = unmarshallString(byteList);
-        if (!className.equals(clazz.getName())) {
-            logger.error("Wrong class type to unmarshall");
-            return null;
-        }
-        return unmarshallObject(byteList, clazz);
+        //if (!className.equals(clazz.getName())) {
+        //    logger.error("Wrong class type to unmarshall");
+        //    return null;
+        //}
+        return unmarshallObject(byteList, Class.forName(className));
     }
 
     public static byte[] marshall(Object obj) {
