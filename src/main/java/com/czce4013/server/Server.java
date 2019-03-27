@@ -14,11 +14,11 @@ public class Server {
 
         while (true){
 
-            String st = communicator.receive();
+            //String st = communicator.receive();
 
-            System.out.println("received String: " + st);
+            //System.out.println("received String: " + st);
 
-            communicator.send("World!");
+            //communicator.send("World!");
         }
     }
 

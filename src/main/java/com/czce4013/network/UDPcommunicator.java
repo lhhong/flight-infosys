@@ -1,5 +1,7 @@
 package com.czce4013.network;
 
+import com.czce4013.marshaller.Marshallable;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -29,9 +31,8 @@ public class UDPcommunicator {
         }
     }
 
-    public void send (String text){
-        //TODO: add in marshalling before sending
-        byte[] byteArray = text.getBytes();
+    public void send (Marshallable data){
+        byte[] byteArray = data.marshall();
         DatagramPacket packet = new DatagramPacket(byteArray,byteArray.length,this.destAddress,this.destPortNumber);
 
         try {
@@ -41,7 +42,7 @@ public class UDPcommunicator {
         }
     }
 
-    public String receive (){
+    public Marshallable receive (){
         byte[] inputBuffer = new byte[1024];
 
         DatagramPacket p = new DatagramPacket(inputBuffer,inputBuffer.length);
@@ -55,9 +56,7 @@ public class UDPcommunicator {
         destAddress = p.getAddress();
         destPortNumber = p.getPort();
 
-        //TODO: add in marshalling after receiving
-        String receivedStr = new String(p.getData(),0,p.getLength());
-        return receivedStr;
+        return Marshallable.unmarshall(p.getData());
     }
 
 

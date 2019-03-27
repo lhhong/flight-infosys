@@ -52,10 +52,10 @@ public class Client {
 
     private void findFlightNo(String[] SourceNDest) {
         //TODO
-        System.out.println(Arrays.toString(SourceNDest));
-        communicator.send(SourceNDest[0]);
-        String receivedStr = communicator.receive();
-        System.out.println(receivedStr);
+        //System.out.println(Arrays.toString(SourceNDest));
+        //communicator.send(SourceNDest[0]);
+        //String receivedStr = communicator.receive();
+        //System.out.println(receivedStr);
     }
 
     private void queryFlightDetails(int flightNo) {

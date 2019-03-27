@@ -6,10 +6,10 @@ public class Marshallable {
         return Marshaller.marshall(this);
     }
 
-    public static Object unmarshall(byte[] raw) {
+    public static Marshallable unmarshall(byte[] raw) {
         try {
-            return Marshaller.unmarshall(raw);
-        } catch (ClassNotFoundException e) {
+            return (Marshallable) Marshaller.unmarshall(raw);
+        } catch (ClassNotFoundException | ClassCastException e) {
             e.printStackTrace();
             return null;
         }

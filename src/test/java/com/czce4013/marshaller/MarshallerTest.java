@@ -71,9 +71,9 @@ public class MarshallerTest {
 
         // Another way to use unmarshall if you don't know the class type
         TestClass recast2 = null;
-        Object o = Marshallable.unmarshall(byteList);
-        if (o instanceof TestClass) {
-            recast2 = (TestClass) o;
+        Marshallable m = Marshallable.unmarshall(byteList);
+        if (m instanceof TestClass) {
+            recast2 = (TestClass) m;
         }
 
         logger.info("original: {}", cObject);

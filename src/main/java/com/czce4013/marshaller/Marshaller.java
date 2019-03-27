@@ -18,10 +18,6 @@ public class Marshaller {
     public static Object unmarshall(byte[] data) throws ClassNotFoundException {
         List<Byte> byteList = new LinkedList<>(Bytes.asList(data));
         String className = unmarshallString(byteList);
-        //if (!className.equals(clazz.getName())) {
-        //    logger.error("Wrong class type to unmarshall");
-        //    return null;
-        //}
         return unmarshallObject(byteList, Class.forName(className));
     }
 
