@@ -6,7 +6,7 @@ public class Marshallable {
         return Marshaller.marshall(this);
     }
 
-    public void unmarshall(byte[] raw) {
-        Marshaller.unmarshall(this, raw);
+    public static <T extends Marshallable> Marshallable unmarshall(byte[] raw, Class<T> clazz) {
+        return Marshaller.unmarshall(raw, clazz);
     }
 }
