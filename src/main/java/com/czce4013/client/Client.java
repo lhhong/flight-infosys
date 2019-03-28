@@ -1,15 +1,19 @@
 package com.czce4013.client;
 
+import com.czce4013.entity.ClientQuery;
+import com.czce4013.entity.FlightInfo;
+import com.czce4013.entity.ServerResponse;
 import com.czce4013.network.UDPcommunicator;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Client {
     private UDPcommunicator communicator;
 
     public static void main(String[] args){
         Client s = new Client();
-        s.connect("192.168.1.71",2222);
+        s.connect("172.20.106.85",2222);
         while (true) {
             s.run();
         }
@@ -23,7 +27,11 @@ public class Client {
         switch (userOption) {
             case 1:
                 String[] sourceNDest = ClientTextUI.getSourceNDest();
-                findFlightNo(sourceNDest);
+                ClientQuery query = new ClientQuery();
+                query.setType(1);
+                query.setSource(sourceNDest[0]);
+                query.setDest(sourceNDest[1]);
+                findFlightNo(query);
                 break;
             case 2:
                 int flightNo = ClientTextUI.getFlightNo();
@@ -50,12 +58,11 @@ public class Client {
         }
     }
 
-    private void findFlightNo(String[] SourceNDest) {
+    private void findFlightNo(ClientQuery query) {
         //TODO
-        //System.out.println(Arrays.toString(SourceNDest));
-        //communicator.send(SourceNDest[0]);
-        //String receivedStr = communicator.receive();
-        //System.out.println(receivedStr);
+        communicator.send(query);
+        ServerResponse receivedStr = (ServerResponse)communicator.receive();
+        System.out.println(receivedStr.toString());
     }
 
     private void queryFlightDetails(int flightNo) {

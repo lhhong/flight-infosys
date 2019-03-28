@@ -1,5 +1,6 @@
 package com.czce4013.client;
 
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class ClientTextUI {
@@ -31,15 +32,15 @@ public class ClientTextUI {
 
     public static String[] getSourceNDest() {
         keyboardScanner.nextLine();
-        String[] SourceNDestination = new String[2];
+        String[] sourceNDest = new String[2];
         System.out.println("\n========== [1] Find Flight Number ==========");
         System.out.println("Enter Source Location: ");
-        SourceNDestination[0] = keyboardScanner.nextLine();
+        sourceNDest[0] = keyboardScanner.nextLine();
 
         System.out.println("Enter Destination Location: ");
-        SourceNDestination[1] = keyboardScanner.nextLine();
+        sourceNDest[1] = keyboardScanner.nextLine();
 
-        return SourceNDestination;
+        return sourceNDest;
     }
 
     public static int getFlightNo() {

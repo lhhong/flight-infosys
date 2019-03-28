@@ -1,5 +1,8 @@
 package com.czce4013.server;
 
+import com.czce4013.entity.ClientQuery;
+import com.czce4013.entity.ServerResponse;
+import com.czce4013.marshaller.Marshallable;
 import com.czce4013.network.UDPcommunicator;
 
 public class Server {
@@ -14,11 +17,24 @@ public class Server {
 
         while (true){
 
-            //String st = communicator.receive();
+            ClientQuery query = (ClientQuery)communicator.receive();
 
-            //System.out.println("received String: " + st);
+            System.out.println(query.toString());
 
-            //communicator.send("World!");
+            ServerResponse response= null;
+
+            switch(query.getType()){
+                case 1:
+                    response = new ServerResponse();
+                    response.setStatus(200);
+                    break;
+                default:
+                    response = new ServerResponse();
+                    response.setStatus(404);
+                    break;
+            }
+
+            communicator.send(response);
         }
     }
 
