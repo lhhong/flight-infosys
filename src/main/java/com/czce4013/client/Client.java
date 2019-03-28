@@ -61,8 +61,14 @@ public class Client {
     private void findFlightNo(ClientQuery query) {
         //TODO
         communicator.send(query);
-        ServerResponse receivedStr = (ServerResponse)communicator.receive();
-        System.out.println(receivedStr.toString());
+        ServerResponse response = (ServerResponse)communicator.receive();
+        if (response.getStatus() == 200){
+            ClientTextUI.printFlightID(query,response);
+        }
+        else{
+            ClientTextUI.printErrorMessage(response);
+        }
+
     }
 
     private void queryFlightDetails(int flightNo) {

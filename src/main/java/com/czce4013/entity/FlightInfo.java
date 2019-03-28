@@ -38,4 +38,52 @@ public class FlightInfo extends Marshallable {
                 ", reserveSeats=" + seatsAvailable +
                 '}';
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public void setDest(String dest) {
+        this.dest = dest;
+    }
+
+    public void setDateTime(DateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public void setFare(double fare) {
+        this.fare = fare;
+    }
+
+    public void setSeatsAvailable(int seatsAvailable) {
+        this.seatsAvailable = seatsAvailable;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public String getDest() {
+        return dest;
+    }
+
+    public DateTime getDateTime() {
+        return dateTime;
+    }
+
+    public double getFare() {
+        return fare;
+    }
+
+    public int getSeatsAvailable() {
+        return seatsAvailable;
+    }
 }

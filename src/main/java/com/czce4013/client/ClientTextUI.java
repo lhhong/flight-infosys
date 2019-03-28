@@ -1,5 +1,9 @@
 package com.czce4013.client;
 
+import com.czce4013.entity.ClientQuery;
+import com.czce4013.entity.FlightInfo;
+import com.czce4013.entity.ServerResponse;
+
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -43,6 +47,22 @@ public class ClientTextUI {
         return sourceNDest;
     }
 
+    public static void printFlightID(ClientQuery query, ServerResponse response) {
+        System.out.println("\n=================================================");
+        System.out.println("================ Server Response ================" );
+        System.out.println("=================================================");
+        System.out.println("QUERY:");
+        String format = "%-40s%s%n";
+        System.out.printf(format, "Source:", query.getSource());
+        System.out.printf(format, "Destination:", query.getDest());
+        System.out.println("=================================================");
+        System.out.println("FLIGHT IDs:");
+        for (int i = 0; i<response.getInfos().size();i++){
+            System.out.println("["+i+"] "+response.getInfos().get(i).getId());
+        }
+        System.out.println("=================================================");
+    }
+
     public static int getFlightNo() {
         System.out.println("\n========== [2] Query Flight Details ==========");
         System.out.println("Enter Flight Number: ");
@@ -57,6 +77,23 @@ public class ClientTextUI {
         System.out.println("Enter number of seats to reserve: ");
         reservationDetails[1] =  keyboardScanner.nextInt();
         return reservationDetails;
+    }
+
+    public static void printErrorMessage(ServerResponse response) {
+        System.out.println("\n=================================================");
+        System.out.println("============== ERROR CODE "+ response.getStatus()+ " ==============" );
+        System.out.println("\n=================================================");
+        switch (response.getStatus()){
+            case 404:
+                System.out.println("Server Error");
+                System.out.println("\n=================================================");
+                break;
+            default:
+                System.out.println("Unknown Error");
+                System.out.println("\n=================================================");
+                break;
+        }
+
     }
 
 }

@@ -5,6 +5,8 @@ import com.czce4013.entity.ServerResponse;
 import com.czce4013.marshaller.Marshallable;
 import com.czce4013.network.UDPcommunicator;
 
+import java.util.List;
+
 public class Server {
     private UDPcommunicator communicator;
 
@@ -14,6 +16,8 @@ public class Server {
 
     public void run() {
         System.out.println("Running Server...");
+        ServerDB database= new ServerDB();
+        System.out.println("Server Seeded...");
 
         while (true){
 
@@ -25,8 +29,10 @@ public class Server {
 
             switch(query.getType()){
                 case 1:
+                    List flightID = database.findFlightID(query.getSource(),query.getDest());
                     response = new ServerResponse();
                     response.setStatus(200);
+                    response.setInfos(flightID);
                     break;
                 default:
                     response = new ServerResponse();
@@ -35,6 +41,7 @@ public class Server {
             }
 
             communicator.send(response);
+            System.out.println(response.toString());
         }
     }
 
