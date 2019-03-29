@@ -1,5 +1,6 @@
 package com.czce4013.network;
 
+import com.czce4013.entity.Response;
 import com.czce4013.marshaller.Marshallable;
 import com.google.common.util.concurrent.FutureCallback;
 
@@ -31,9 +32,13 @@ public class UDPCommunicator {
         }
     }
 
-    public void send (Marshallable data){
+    public void send(Marshallable data) {
+        send(data, socketAddress);
+    }
+
+    public void send (Marshallable data, InetSocketAddress dest){
         byte[] byteArray = data.marshall();
-        DatagramPacket packet = new DatagramPacket(byteArray,byteArray.length,this.socketAddress);
+        DatagramPacket packet = new DatagramPacket(byteArray,byteArray.length, dest);
 
         try {
             this.dSocket.send(packet);
@@ -42,8 +47,8 @@ public class UDPCommunicator {
         }
     }
 
-    public Marshallable receive() {
-        final CompletableFuture<Marshallable> future = new CompletableFuture<>();
+    public Response receive() {
+        final CompletableFuture<Response> future = new CompletableFuture<>();
         final CompletableFuture<Boolean> timeoutFuture = new CompletableFuture<>();
         this.receiveAsync(future::complete, timeoutFuture::complete,5, false);
         try {
@@ -54,7 +59,7 @@ public class UDPCommunicator {
         }
     }
 
-    public void receive(Consumer<Marshallable> callback, int timeout) {
+    public void receive(Consumer<Response> callback, int timeout) {
         final CompletableFuture<Boolean> future = new CompletableFuture<>();
         this.receiveAsync(callback, future::complete ,timeout, true);
         try {
@@ -64,7 +69,7 @@ public class UDPCommunicator {
         }
     }
 
-    public void receiveAsync (Consumer<Marshallable> callback, Consumer<Boolean> timeoutCall, int timeout, boolean listen){
+    public void receiveAsync (Consumer<Response> callback, Consumer<Boolean> timeoutCall, int timeout, boolean listen){
 
 
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
@@ -74,8 +79,7 @@ public class UDPCommunicator {
                     byte[] inputBuffer = new byte[1024];
                     DatagramPacket p = new DatagramPacket(inputBuffer, inputBuffer.length);
                     dSocket.receive(p);
-                    socketAddress = (InetSocketAddress) p.getSocketAddress();
-                    callback.accept(Marshallable.unmarshall(p.getData()));
+                    callback.accept(new Response((InetSocketAddress) p.getSocketAddress(), Marshallable.unmarshall(p.getData())));
                 } while (listen);
             } catch (IOException e) {
                 callback.accept(null);

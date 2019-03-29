@@ -73,7 +73,7 @@ public class Client {
 
     private void findFlightNo(ClientQuery query) {
         communicator.send(query);
-        ServerResponse response = (ServerResponse)communicator.receive();
+        ServerResponse response = (ServerResponse)communicator.receive().getData();
         if (response.getStatus() == 200){
             ClientTextUI.printFlightID(query,response);
         }
@@ -84,7 +84,7 @@ public class Client {
 
     private void queryFlightDetails(ClientQuery query) {
         communicator.send(query);
-        ServerResponse response = (ServerResponse)communicator.receive();
+        ServerResponse response = (ServerResponse)communicator.receive().getData();
         if (response.getStatus() == 200){
             ClientTextUI.printFlightDetails(query,response);
         }
@@ -95,7 +95,7 @@ public class Client {
 
     private void makeReservation(ClientQuery query) {
         communicator.send(query);
-        ServerResponse response = (ServerResponse)communicator.receive();
+        ServerResponse response = (ServerResponse)communicator.receive().getData();
         if (response.getStatus() == 200){
             ClientTextUI.printReservationConfirmation(query,response);
         }
@@ -107,7 +107,7 @@ public class Client {
     private void monitorFlight(ClientQuery query) {
         communicator.send(query);
         communicator.receive((reply) -> {
-            ServerResponse response = (ServerResponse) reply;
+            ServerResponse response = (ServerResponse) reply.getData();
             if (response.getStatus() == 200){
                 ClientTextUI.printFlightUpdate(query,response);
             }
