@@ -2,13 +2,15 @@ package com.czce4013.client;
 
 import com.czce4013.entity.ClientQuery;
 import com.czce4013.entity.ServerResponse;
+import com.czce4013.network.AtLeastOnceNetwork;
+import com.czce4013.network.Network;
 import com.czce4013.network.PoorUDPCommunicator;
 import com.czce4013.network.UDPCommunicator;
 
 import java.net.InetSocketAddress;
 
 public class Client {
-    private UDPCommunicator communicator;
+    private Network network;
 
     public static void main(String[] args){
         Client s = new Client();
@@ -72,8 +74,8 @@ public class Client {
     }
 
     private void findFlightNo(ClientQuery query) {
-        communicator.send(query);
-        ServerResponse response = (ServerResponse)communicator.receive().getData();
+        network.send(query);
+        ServerResponse response = (ServerResponse)network.receive().getData();
         if (response.getStatus() == 200){
             ClientTextUI.printFlightID(query,response);
         }
@@ -83,8 +85,8 @@ public class Client {
     }
 
     private void queryFlightDetails(ClientQuery query) {
-        communicator.send(query);
-        ServerResponse response = (ServerResponse)communicator.receive().getData();
+        network.send(query);
+        ServerResponse response = (ServerResponse)network.receive().getData();
         if (response.getStatus() == 200){
             ClientTextUI.printFlightDetails(query,response);
         }
@@ -94,8 +96,8 @@ public class Client {
     }
 
     private void makeReservation(ClientQuery query) {
-        communicator.send(query);
-        ServerResponse response = (ServerResponse)communicator.receive().getData();
+        network.send(query);
+        ServerResponse response = (ServerResponse)network.receive().getData();
         if (response.getStatus() == 200){
             ClientTextUI.printReservationConfirmation(query,response);
         }
@@ -105,8 +107,8 @@ public class Client {
     }
 
     private void monitorFlight(ClientQuery query) {
-        communicator.send(query);
-        communicator.receive((reply) -> {
+        network.send(query);
+        network.receive((reply) -> {
             ServerResponse response = (ServerResponse) reply.getData();
             if (response.getStatus() == 200){
                 ClientTextUI.printFlightUpdate(query,response);
@@ -126,6 +128,6 @@ public class Client {
     }
 
     private void connect (InetSocketAddress socketAddress){
-        communicator = new PoorUDPCommunicator(socketAddress);
+        network = new AtLeastOnceNetwork(new PoorUDPCommunicator(socketAddress));
     }
 }

@@ -3,6 +3,9 @@ package com.czce4013.server;
 import com.czce4013.entity.ClientQuery;
 import com.czce4013.entity.Response;
 import com.czce4013.entity.ServerResponse;
+import com.czce4013.network.AtLeastOnceNetwork;
+import com.czce4013.network.Network;
+import com.czce4013.network.PoorUDPCommunicator;
 import com.czce4013.network.UDPCommunicator;
 
 import java.net.InetSocketAddress;
@@ -11,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
-    private UDPCommunicator communicator;
+    private Network network;
 
     public Server(){
-        communicator = new UDPCommunicator(2222);
+        network = new AtLeastOnceNetwork(new PoorUDPCommunicator(2222));
     }
 
     public void run() {
@@ -24,7 +27,7 @@ public class Server {
 
         while (true){
 
-            Response resp = communicator.receive();
+            Response resp = network.receive();
             ClientQuery query = (ClientQuery) resp.getData();
 
             System.out.println(query.toString());
@@ -38,7 +41,7 @@ public class Server {
                     response = new ServerResponse();
                     response.setStatus(200);
                     response.setInfos(flightID);
-                    communicator.send(response, resp.getOrigin());
+                    network.send(response, resp.getOrigin());
                     System.out.println(response.toString());
                     break;
                 case 2:
@@ -46,7 +49,7 @@ public class Server {
                     response = new ServerResponse();
                     response.setStatus(200);
                     response.setInfos(flightID);
-                    communicator.send(response, resp.getOrigin());
+                    network.send(response, resp.getOrigin());
                     System.out.println(response.toString());
                     break;
                 case 3:
@@ -54,7 +57,7 @@ public class Server {
                     response = new ServerResponse();
                     response.setStatus(200);
                     response.setInfos(flightID);
-                    communicator.send(response, resp.getOrigin());
+                    network.send(response, resp.getOrigin());
                     reservationCallback(response);
                     System.out.println(response.toString());
                     break;
@@ -74,7 +77,7 @@ public class Server {
         ServerDB.filterCallBackAddresses();
         List<SocketAddress> addresses = ServerDB.getCallBackAddresses(flightID);
         for (SocketAddress address: addresses){
-            communicator.send(response, (InetSocketAddress) address);
+            network.send(response, (InetSocketAddress) address);
         }
     }
 
