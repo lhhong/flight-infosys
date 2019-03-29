@@ -5,6 +5,9 @@ import com.czce4013.entity.ServerResponse;
 import com.czce4013.marshaller.Marshallable;
 import com.czce4013.network.UDPcommunicator;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
@@ -26,22 +29,51 @@ public class Server {
             System.out.println(query.toString());
 
             ServerResponse response= null;
+            List flightID = null;
 
-            switch(query.getType()){
+            switch(query.getType()) {
                 case 1:
-                    List flightID = database.findFlightID(query.getSource(),query.getDest());
+                    flightID = database.findFlightID(query.getFlight().getSource(), query.getFlight().getDest());
                     response = new ServerResponse();
                     response.setStatus(200);
                     response.setInfos(flightID);
+                    communicator.send(response);
+                    System.out.println(response.toString());
+                    break;
+                case 2:
+                    flightID = database.getFlightDetails(query.getFlight().getId());
+                    response = new ServerResponse();
+                    response.setStatus(200);
+                    response.setInfos(flightID);
+                    communicator.send(response);
+                    System.out.println(response.toString());
+                    break;
+                case 3:
+                    flightID = database.makeReservation(query.getFlight().getId(), query.getFlight().getSeatsAvailable());
+                    response = new ServerResponse();
+                    response.setStatus(200);
+                    response.setInfos(flightID);
+                    reservationCallback(response);
+                    communicator.send(response);
+                    System.out.println(response.toString());
+                    break;
+                case 4:
+                    database.observeFlight(query.getFlight().getId(), communicator.getSocketAddress());
                     break;
                 default:
                     response = new ServerResponse();
                     response.setStatus(404);
                     break;
             }
+        }
+    }
 
+    private void reservationCallback(ServerResponse response) {
+        int flightID = response.getInfos().get(0).getId();
+        ArrayList<SocketAddress> addresses = ServerDB.getCallBackAddresses(flightID);
+        for (SocketAddress address: addresses){
+            communicator.setSocketAddress((InetSocketAddress)address);
             communicator.send(response);
-            System.out.println(response.toString());
         }
     }
 

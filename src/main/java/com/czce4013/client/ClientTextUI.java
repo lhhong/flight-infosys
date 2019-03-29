@@ -39,28 +39,12 @@ public class ClientTextUI {
         String[] sourceNDest = new String[2];
         System.out.println("\n========== [1] Find Flight Number ==========");
         System.out.println("Enter Source Location: ");
-        sourceNDest[0] = keyboardScanner.nextLine();
+        sourceNDest[0] = keyboardScanner.nextLine().toUpperCase().trim();
 
         System.out.println("Enter Destination Location: ");
-        sourceNDest[1] = keyboardScanner.nextLine();
+        sourceNDest[1] = keyboardScanner.nextLine().toUpperCase().trim();
 
         return sourceNDest;
-    }
-
-    public static void printFlightID(ClientQuery query, ServerResponse response) {
-        System.out.println("\n=================================================");
-        System.out.println("================ Server Response ================" );
-        System.out.println("=================================================");
-        System.out.println("QUERY:");
-        String format = "%-40s%s%n";
-        System.out.printf(format, "Source:", query.getSource());
-        System.out.printf(format, "Destination:", query.getDest());
-        System.out.println("=================================================");
-        System.out.println("FLIGHT IDs:");
-        for (int i = 0; i<response.getInfos().size();i++){
-            System.out.println("["+i+"] "+response.getInfos().get(i).getId());
-        }
-        System.out.println("=================================================");
     }
 
     public static int getFlightNo() {
@@ -79,6 +63,67 @@ public class ClientTextUI {
         return reservationDetails;
     }
 
+    public static int monitorFlight() {
+        System.out.println("\n========== [3] Make Flight Reservation ==========");
+        System.out.println("Enter Flight Number: ");
+        int flightNo =  keyboardScanner.nextInt();
+        return flightNo;
+    }
+
+    public static void printFlightID(ClientQuery query, ServerResponse response) {
+        printServerResponse();
+        System.out.println("QUERY:");
+        String format = "%-40s%s%n";
+        System.out.printf(format, "Source:", query.getFlight().getSource());
+        System.out.printf(format, "Destination:", query.getFlight().getDest());
+        System.out.println("=================================================");
+        System.out.println("FLIGHT IDs:");
+        for (int i = 0; i<response.getInfos().size();i++){
+            System.out.println("["+i+"] "+response.getInfos().get(i).getId());
+        }
+        System.out.println("=================================================");
+    }
+
+    public static void printFlightDetails(ClientQuery query, ServerResponse response) {
+        printServerResponse();
+        System.out.println("QUERY:");
+        String format = "%-40s%s%n";
+        System.out.printf(format, "Flight ID:", query.getFlight().getId());
+        printFlightDetails(response);
+    }
+
+
+    public static void printReservationConfirmation(ClientQuery query, ServerResponse response) {
+        printServerResponse();
+        System.out.println("QUERY:");
+        String format = "%-40s%s%n";
+        System.out.printf(format, "Flight ID:", query.getFlight().getId());
+        System.out.printf(format, "Seats to Reserve:", query.getFlight().getSeatsAvailable());
+        System.out.println("RESERVATION SUCCESSFUL!");
+        printFlightDetails(response);
+    }
+
+    public static void printFlightUpdate(ClientQuery query, ServerResponse response) {
+        printServerResponse();
+        System.out.println("QUERY:");
+        String format = "%-40s%s%n";
+        System.out.printf(format, "Flight ID:", query.getFlight().getId());
+        System.out.println("FLIGHT HAS BEEN UPDATED!");
+        printFlightDetails(response);
+    }
+
+    public static void printFlightDetails(ServerResponse response){
+        String format = "%-40s%s%n";
+        System.out.println("=================================================");
+        System.out.println("FLIGHT DETAILS:");
+        System.out.printf(format, "Flight ID:", response.getInfos().get(0).getId());
+        System.out.printf(format, "Source:", response.getInfos().get(0).getSource());
+        System.out.printf(format, "Destination:", response.getInfos().get(0).getDest());
+        System.out.printf(format, "Date & Time:", response.getInfos().get(0).getDateTime().toNiceString());
+        System.out.printf(format, "AirFare:", "$"+response.getInfos().get(0).getFare());
+        System.out.printf(format, "Seats Available:", response.getInfos().get(0).getSeatsAvailable());
+        System.out.println("=================================================");
+    }
     public static void printErrorMessage(ServerResponse response) {
         System.out.println("\n=================================================");
         System.out.println("============== ERROR CODE "+ response.getStatus()+ " ==============" );
@@ -95,5 +140,14 @@ public class ClientTextUI {
         }
 
     }
+
+    private static void printServerResponse() {
+        System.out.println("\n=================================================");
+        System.out.println("================ Server Response ================" );
+        System.out.println("=================================================");
+        System.out.println("================= Status 200 OK =================" );
+        System.out.println("=================================================");
+    }
+
 
 }

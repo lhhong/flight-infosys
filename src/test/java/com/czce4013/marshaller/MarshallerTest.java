@@ -91,7 +91,8 @@ public class MarshallerTest {
     @Test
     public void testMarshallClientQuery() {
         DateTime dateTime = new DateTime(1,2,3,4,5);
-        ClientQuery query = new ClientQuery(1,"Changi","KLIA",dateTime,1.23,5);
+        FlightInfo flight = new FlightInfo(1,"Changi","KLIA",dateTime,1.23,5);
+        ClientQuery query = new ClientQuery(1,flight);
 
         byte[] byteList = query.marshall();
         ClientQuery recast = Marshallable.unmarshall(byteList, ClientQuery.class);

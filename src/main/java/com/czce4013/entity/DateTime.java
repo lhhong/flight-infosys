@@ -24,7 +24,8 @@ public class DateTime {
         this.hour = h;
         this.minute = mi;
     }
-    public String ToString(){
+
+    public String toNiceString(){
         return Integer.toString(year) + "/" + Integer.toString(month) + "/" + Integer.toString(day) + " " +
                 Integer.toString(hour) + Integer.toString(minute) + "hrs";
     }

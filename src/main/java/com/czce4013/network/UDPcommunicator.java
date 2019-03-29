@@ -3,21 +3,17 @@ package com.czce4013.network;
 import com.czce4013.marshaller.Marshallable;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 
 
 public class UDPcommunicator {
     private DatagramSocket dSocket;
-    private InetAddress destAddress;
-    private int destPortNumber;
+    private InetSocketAddress socketAddress;
 
-    public UDPcommunicator(String destIPAddress, int destPortNumber){
+    public UDPcommunicator(InetSocketAddress socketAddress){
         try {
             dSocket = new DatagramSocket();
-            destAddress = InetAddress.getByName(destIPAddress);
-            this.destPortNumber = destPortNumber;
+            this.socketAddress = socketAddress;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -33,7 +29,7 @@ public class UDPcommunicator {
 
     public void send (Marshallable data){
         byte[] byteArray = data.marshall();
-        DatagramPacket packet = new DatagramPacket(byteArray,byteArray.length,this.destAddress,this.destPortNumber);
+        DatagramPacket packet = new DatagramPacket(byteArray,byteArray.length,this.socketAddress);
 
         try {
             this.dSocket.send(packet);
@@ -53,18 +49,28 @@ public class UDPcommunicator {
             e.printStackTrace();
         }
 
-        destAddress = p.getAddress();
-        destPortNumber = p.getPort();
+        socketAddress = (InetSocketAddress)p.getSocketAddress();
 
         return Marshallable.unmarshall(p.getData());
     }
 
+    public static String getIPaddress(){
+        String ret= null;
+        try{
+            ret = InetAddress.getLocalHost().getHostAddress();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return ret;
 
-    public void setDestAddress(InetAddress destAddress) {
-        this.destAddress = destAddress;
     }
 
-    public void setDestPortNumber(int destPortNumber) {
-        this.destPortNumber = destPortNumber;
+    public InetSocketAddress getSocketAddress() {
+        return socketAddress;
+    }
+
+    public void setSocketAddress(InetSocketAddress socketAddress) {
+        this.socketAddress = socketAddress;
     }
 }
