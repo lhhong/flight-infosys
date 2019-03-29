@@ -2,8 +2,7 @@ package com.czce4013.server;
 
 import com.czce4013.entity.ClientQuery;
 import com.czce4013.entity.ServerResponse;
-import com.czce4013.marshaller.Marshallable;
-import com.czce4013.network.UDPcommunicator;
+import com.czce4013.network.UDPCommunicator;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -11,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
-    private UDPcommunicator communicator;
+    private UDPCommunicator communicator;
 
     public Server(){
-        communicator = new UDPcommunicator(2222);
+        communicator = new UDPCommunicator(2222);
     }
 
     public void run() {
@@ -53,12 +52,12 @@ public class Server {
                     response = new ServerResponse();
                     response.setStatus(200);
                     response.setInfos(flightID);
-                    reservationCallback(response);
                     communicator.send(response);
+                    reservationCallback(response);
                     System.out.println(response.toString());
                     break;
                 case 4:
-                    database.observeFlight(query.getFlight().getId(), communicator.getSocketAddress());
+                    database.observeFlight(query.getFlight().getId(), communicator.getSocketAddress(), query.getTimeout());
                     break;
                 default:
                     response = new ServerResponse();
@@ -70,7 +69,8 @@ public class Server {
 
     private void reservationCallback(ServerResponse response) {
         int flightID = response.getInfos().get(0).getId();
-        ArrayList<SocketAddress> addresses = ServerDB.getCallBackAddresses(flightID);
+        ServerDB.filterCallBackAddresses();
+        List<SocketAddress> addresses = ServerDB.getCallBackAddresses(flightID);
         for (SocketAddress address: addresses){
             communicator.setSocketAddress((InetSocketAddress)address);
             communicator.send(response);

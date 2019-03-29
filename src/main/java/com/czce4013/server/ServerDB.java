@@ -1,5 +1,6 @@
 package com.czce4013.server;
 
+import com.czce4013.entity.ClientInfo;
 import com.czce4013.entity.ClientQuery;
 import com.czce4013.entity.DateTime;
 import com.czce4013.entity.FlightInfo;
@@ -9,10 +10,11 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ServerDB {
     private static ArrayList<FlightInfo> flightData= new ArrayList<FlightInfo>();;
-    private static HashMap<Integer, ArrayList<SocketAddress>> callbackList = new HashMap<Integer, ArrayList<SocketAddress>>();
+    private static HashMap<Integer, List<ClientInfo>> callbackList = new HashMap<>();
 
     public ServerDB(){
         seed();
@@ -20,15 +22,15 @@ public class ServerDB {
 
     public static void seed(){
         DateTime dateTime = new DateTime(2019,3,28,23,5);
-        flightData.add(new FlightInfo(1001,"SINGAPORE","BANGKOK",dateTime,1.23,5));
+        flightData.add(new FlightInfo((short) 1001,"SINGAPORE","BANGKOK",dateTime,1.23F,(short) 5));
         dateTime = new DateTime(2019,3,28,23,10);
-        flightData.add(new FlightInfo(2012,"KL","BANGKOK",dateTime,2.23,15));
+        flightData.add(new FlightInfo((short) 2012,"KL","BANGKOK",dateTime,2.23F,(short) 15));
         dateTime = new DateTime(2019,3,28,23,15);
-        flightData.add(new FlightInfo(3197,"SINGAPORE","KL",dateTime,3.23,2));
+        flightData.add(new FlightInfo((short) 3197,"SINGAPORE","KL",dateTime,3.23F,(short) 2));
         dateTime = new DateTime(2019,3,28,23,20);
-        flightData.add(new FlightInfo(4456,"BANGKOK","SINGAPORE",dateTime,4.23,9));
+        flightData.add(new FlightInfo((short) 4456,"BANGKOK","SINGAPORE",dateTime,4.23F,(short) 9));
         dateTime = new DateTime(2019,3,28,23,25);
-        flightData.add(new FlightInfo(5232,"SINGAPORE","BANGKOK",dateTime,5.23,7));
+        flightData.add(new FlightInfo((short) 5232,"SINGAPORE","BANGKOK",dateTime,5.23F,(short) 7));
     }
 
     public List findFlightID(String source, String dest){
@@ -55,27 +57,29 @@ public class ServerDB {
         ArrayList<FlightInfo> returnArray = new ArrayList<FlightInfo>();
         for (FlightInfo flight:flightData){
             if (flight.getId() == id){
-                flight.setSeatsAvailable(flight.getSeatsAvailable()-seatsReserve);
+                flight.setSeatsAvailable((short) (flight.getSeatsAvailable()-seatsReserve));
                 returnArray.add(flight);
             }
         }
         return returnArray;
     }
 
-    public void observeFlight(int flightId,SocketAddress socketAddress) {
-        if (callbackList.get(flightId) == null){
-            ArrayList<SocketAddress> addresses = new ArrayList<SocketAddress>();
-            addresses.add(socketAddress);
-            callbackList.put(flightId,addresses);
+    public void observeFlight(int flightId,SocketAddress socketAddress, int timeout) {
+        if (!callbackList.containsKey(flightId)){
+            callbackList.put(flightId,new ArrayList<>());
         }
-        else{
-            ArrayList<SocketAddress> addresses = callbackList.get(flightId);
-            addresses.add(socketAddress);
-            callbackList.put(flightId,addresses);
-        }
+        List<ClientInfo> addresses = callbackList.get(flightId);
+        addresses.add(new ClientInfo(socketAddress, timeout));
+        callbackList.put(flightId,addresses);
     }
 
-    public static ArrayList<SocketAddress> getCallBackAddresses(int flightID){
-        return callbackList.get(flightID);
+    public static List<SocketAddress> getCallBackAddresses(int flightID){
+        return callbackList.get(flightID).stream().map(ClientInfo::getSocket).collect(Collectors.toList());
+    }
+
+    public static void filterCallBackAddresses() {
+        callbackList.forEach((flight, clients) -> {
+            callbackList.put(flight, clients.stream().filter((c) -> c.getExpire() > System.currentTimeMillis()).collect(Collectors.toList()));
+        });
     }
 }

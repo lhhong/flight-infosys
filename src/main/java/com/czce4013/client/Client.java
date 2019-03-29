@@ -1,21 +1,18 @@
 package com.czce4013.client;
 
 import com.czce4013.entity.ClientQuery;
-import com.czce4013.entity.FlightInfo;
 import com.czce4013.entity.ServerResponse;
-import com.czce4013.network.UDPcommunicator;
+import com.czce4013.network.PoorUDPCommunicator;
+import com.czce4013.network.UDPCommunicator;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.util.Arrays;
-import java.util.HashMap;
 
 public class Client {
-    private UDPcommunicator communicator;
+    private UDPCommunicator communicator;
 
     public static void main(String[] args){
         Client s = new Client();
-        String LocalIPAddress = UDPcommunicator.getIPaddress();
+        String LocalIPAddress = UDPCommunicator.getIPaddress();
         InetSocketAddress socketAddress = new InetSocketAddress(LocalIPAddress,2222);
         s.connect(socketAddress);
         while (true) {
@@ -42,22 +39,23 @@ public class Client {
                 query = new ClientQuery();
                 int flightNo = ClientTextUI.getFlightNo();
                 query.setType(2);
-                query.getFlight().setId(flightNo);
+                query.getFlight().setId((short) flightNo);
                 queryFlightDetails(query);
                 break;
             case 3:
                 query = new ClientQuery();
                 int[] reservationDetails = ClientTextUI.getReservationDetails();
                 query.setType(3);
-                query.getFlight().setId(reservationDetails[0]);
-                query.getFlight().setSeatsAvailable(reservationDetails[1]);
+                query.getFlight().setId((short) reservationDetails[0]);
+                query.getFlight().setSeatsAvailable((short) reservationDetails[1]);
                 makeReservation(query);
                 break;
             case 4:
                 query = new ClientQuery();
-                int flightNum = ClientTextUI.monitorFlight();
+                int[] monitoringDetails = ClientTextUI.monitorFlight();
                 query.setType(4);
-                query.getFlight().setId(flightNum);
+                query.setTimeout(monitoringDetails[1]);
+                query.getFlight().setId((short) monitoringDetails[0]);
                 monitorFlight(query);
                 break;
             case 5:
@@ -101,20 +99,22 @@ public class Client {
         if (response.getStatus() == 200){
             ClientTextUI.printReservationConfirmation(query,response);
         }
-        else{
+        else {
             ClientTextUI.printErrorMessage(response);
         }
     }
 
     private void monitorFlight(ClientQuery query) {
         communicator.send(query);
-        ServerResponse response = (ServerResponse)communicator.receive();
-        if (response.getStatus() == 200){
-            ClientTextUI.printFlightUpdate(query,response);
-        }
-        else{
-            ClientTextUI.printErrorMessage(response);
-        }
+        communicator.receive((reply) -> {
+            ServerResponse response = (ServerResponse) reply;
+            if (response.getStatus() == 200){
+                ClientTextUI.printFlightUpdate(query,response);
+            }
+            else{
+                ClientTextUI.printErrorMessage(response);
+            }
+        }, query.getTimeout());
     }
 
     private void unknown1() {
@@ -126,6 +126,6 @@ public class Client {
     }
 
     private void connect (InetSocketAddress socketAddress){
-        communicator = new UDPcommunicator(socketAddress);
+        communicator = new PoorUDPCommunicator(socketAddress);
     }
 }

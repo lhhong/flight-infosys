@@ -1,42 +1,33 @@
 package com.czce4013.entity;
 
-import java.util.HashMap;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+@Getter
+@Setter
+@ToString
 public class DateTime {
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
+    Date date;
 
     public DateTime(){
-        this.year = -1;
-        this.month = -1;
-        this.day = -1;
-        this.hour = -1;
-        this.minute = -1;
+        this.date = new Date(0);
     }
 
     public DateTime(int y,int mo, int d, int h,int mi){
-        this.year = y;
-        this.month = mo;
-        this.day = d;
-        this.hour = h;
-        this.minute = mi;
+        Calendar cal = Calendar.getInstance();
+        cal.set(y, mo - 1, d, h, mi, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        this.date = cal.getTime();
     }
 
     public String toNiceString(){
-        return Integer.toString(year) + "/" + Integer.toString(month) + "/" + Integer.toString(day) + " " +
-                Integer.toString(hour) + Integer.toString(minute) + "hrs";
-    }
-
-    public String toString(){
-        return "DateTime{" +
-                "year=" + year +
-                "month=" + month +
-                "day=" + day +
-                "hour=" + hour +
-                "minute=" + minute +
-                '}';
+        DateFormat df = new SimpleDateFormat("yyyy/MM/dd hh:mm");
+        return df.format(this.date) + " hrs";
     }
 }

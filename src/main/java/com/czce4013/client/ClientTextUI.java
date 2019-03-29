@@ -63,11 +63,14 @@ public class ClientTextUI {
         return reservationDetails;
     }
 
-    public static int monitorFlight() {
-        System.out.println("\n========== [3] Make Flight Reservation ==========");
+    public static int[] monitorFlight() {
+        int[] monitoringDetails = new int[2];
+        System.out.println("\n========== [4] Monitor Flight ==========");
         System.out.println("Enter Flight Number: ");
-        int flightNo =  keyboardScanner.nextInt();
-        return flightNo;
+        monitoringDetails[0] =  keyboardScanner.nextInt();
+        System.out.println("Enter time to monitor (seconds): ");
+        monitoringDetails[1] =  keyboardScanner.nextInt();
+        return monitoringDetails;
     }
 
     public static void printFlightID(ClientQuery query, ServerResponse response) {

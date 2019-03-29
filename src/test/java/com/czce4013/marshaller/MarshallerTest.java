@@ -9,11 +9,13 @@ import com.czce4013.entity.ServerResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class MarshallerTest {
@@ -23,6 +25,7 @@ public class MarshallerTest {
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
+    @ToString
     static class TestClass extends Marshallable{
 
         String a;
@@ -30,45 +33,31 @@ public class MarshallerTest {
         List<Integer> c;
         TestSubClass d;
         double e;
+        short f;
+        float g;
+        Date h;
 
         // Will not serialize data in IgnoreField
         @IgnoreField
         // This annotation is just for JSON testing to check the code, not needed in entities
         @JSONField(serialize = false, deserialize = false)
         double noSerialize;
-
-        @Override
-        public String toString() {
-            return "TestClass{" +
-                    "a='" + a + '\'' +
-                    ", b=" + b +
-                    ", c=" + c +
-                    ", d=" + d +
-                    ", e=" + e +
-                    ", noSerialize=" + noSerialize +
-                    '}';
-        }
     }
 
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
+    @ToString
     static class TestSubClass {
         int a;
 
-        @Override
-        public String toString() {
-            return "TestSubClass{" +
-                    "a=" + a +
-                    '}';
-        }
     }
 
     @Test
     public void testMarshall() {
         TestSubClass scObject = new TestSubClass(4);
         List<Integer> l = Arrays.asList(6,7,8);
-        TestClass cObject = new TestClass("string-a", 2, l, scObject, 4.32, 1.23);
+        TestClass cObject = new TestClass("string-a", 2, l, scObject, 4.32, (short) 12, 1.53F, new Date(20000000), 1.23);
 
         byte[] byteList = cObject.marshall();
         TestClass recast = Marshallable.unmarshall(byteList, TestClass.class);
@@ -90,8 +79,8 @@ public class MarshallerTest {
 
     @Test
     public void testMarshallClientQuery() {
-        DateTime dateTime = new DateTime(1,2,3,4,5);
-        FlightInfo flight = new FlightInfo(1,"Changi","KLIA",dateTime,1.23,5);
+        DateTime dateTime = new DateTime(1999,2,3,4,5);
+        FlightInfo flight = new FlightInfo((short) 1,"Changi","KLIA",dateTime,1.23F,(short) 5);
         ClientQuery query = new ClientQuery(1,flight);
 
         byte[] byteList = query.marshall();
@@ -104,9 +93,9 @@ public class MarshallerTest {
             recast2 = (ClientQuery) m;
         }
 
-        logger.info("original: {}", query);
-        logger.info("recast: {}", recast);
-        logger.info("recast2: {}", recast2);
+        logger.info("original: {}, {}", query, JSON.toJSONString(query));
+        logger.info("recast: {}, {}", recast, JSON.toJSONString(recast));
+        logger.info("recast2: {}, {}", recast2, JSON.toJSONString(recast2));
         assert JSON.toJSON(query).equals(JSON.toJSON(recast));
         assert JSON.toJSON(query).equals(JSON.toJSON(recast2));
 
@@ -114,8 +103,8 @@ public class MarshallerTest {
 
     @Test
     public void testMarshallFlightInfo() {
-        DateTime dateTime = new DateTime(1,2,3,4,5);
-        FlightInfo query = new FlightInfo(1,"Changi","KLIA",dateTime,1.23,5);
+        DateTime dateTime = new DateTime(2014,2,3,4,5);
+        FlightInfo query = new FlightInfo((short) 1,"Changi","KLIA",dateTime,1.23F,(short) 5);
 
         byte[] byteList = query.marshall();
         FlightInfo recast = Marshallable.unmarshall(byteList, FlightInfo.class);
@@ -137,10 +126,10 @@ public class MarshallerTest {
 
     @Test
     public void testMarshallServerResponse() {
-        DateTime dateTime = new DateTime(1,2,3,4,5);
-        DateTime dateTime2 = new DateTime(9,8,7,6,5);
-        FlightInfo query = new FlightInfo(1,"Changi","KLIA",dateTime,1.23,5);
-        FlightInfo query2 = new FlightInfo(2,"Bangkok","Tokyo",dateTime2,2.34,10);
+        DateTime dateTime = new DateTime(1993,2,3,4,5);
+        DateTime dateTime2 = new DateTime(2015,8,7,6,5);
+        FlightInfo query = new FlightInfo((short) 1,"Changi","KLIA",dateTime,1.23F,(short) 5);
+        FlightInfo query2 = new FlightInfo((short) 2,"Bangkok","Tokyo",dateTime2,2.34F,(short) 10);
 
         FlightInfo[] arr ={query, query2};
         ServerResponse queryArray = new ServerResponse(200,Arrays.asList(arr));

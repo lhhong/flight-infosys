@@ -1,11 +1,15 @@
 package com.czce4013.entity;
 
 import com.czce4013.marshaller.Marshallable;
+import lombok.*;
 
-import java.util.HashMap;
-
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class ClientQuery extends Marshallable {
     int type;
+    int timeout;
     FlightInfo flight;
 
     public ClientQuery(){
@@ -13,32 +17,9 @@ public class ClientQuery extends Marshallable {
         flight = new FlightInfo();
     }
 
-    public ClientQuery(int queryType, FlightInfo flight){
-        type = queryType;
-        this.flight = flight;
-    }
-
-    public void setType(int type) {
+    public ClientQuery(int type, FlightInfo flight) {
         this.type = type;
-    }
-
-    public void setFlight(FlightInfo flight) {
         this.flight = flight;
-    }
-
-    public FlightInfo getFlight() {
-        return flight;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public String toString(){
-        return "ClientQuery{" +
-                "type=" + type +
-                ", flight=" + flight+
-                '}';
     }
 
 }
