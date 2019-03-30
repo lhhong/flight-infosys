@@ -1,10 +1,8 @@
 package com.czce4013.client;
 
 import com.czce4013.entity.ClientQuery;
-import com.czce4013.entity.FlightInfo;
 import com.czce4013.entity.ServerResponse;
 
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class ClientTextUI {
@@ -82,7 +80,7 @@ public class ClientTextUI {
         System.out.println("=================================================");
         System.out.println("FLIGHT IDs:");
         for (int i = 0; i<response.getInfos().size();i++){
-            System.out.println("["+i+"] "+response.getInfos().get(i).getId());
+            System.out.println("["+i+"] "+response.getInfos().get(i).getFlightId());
         }
         System.out.println("=================================================");
     }
@@ -91,7 +89,7 @@ public class ClientTextUI {
         printServerResponse();
         System.out.println("QUERY:");
         String format = "%-40s%s%n";
-        System.out.printf(format, "Flight ID:", query.getFlight().getId());
+        System.out.printf(format, "Flight ID:", query.getFlight().getFlightId());
         printFlightDetails(response);
     }
 
@@ -100,7 +98,7 @@ public class ClientTextUI {
         printServerResponse();
         System.out.println("QUERY:");
         String format = "%-40s%s%n";
-        System.out.printf(format, "Flight ID:", query.getFlight().getId());
+        System.out.printf(format, "Flight ID:", query.getFlight().getFlightId());
         System.out.printf(format, "Seats to Reserve:", query.getFlight().getSeatsAvailable());
         System.out.println("RESERVATION SUCCESSFUL!");
         printFlightDetails(response);
@@ -110,7 +108,7 @@ public class ClientTextUI {
         printServerResponse();
         System.out.println("QUERY:");
         String format = "%-40s%s%n";
-        System.out.printf(format, "Flight ID:", query.getFlight().getId());
+        System.out.printf(format, "Flight ID:", query.getFlight().getFlightId());
         System.out.println("FLIGHT HAS BEEN UPDATED!");
         printFlightDetails(response);
     }
@@ -119,7 +117,7 @@ public class ClientTextUI {
         String format = "%-40s%s%n";
         System.out.println("=================================================");
         System.out.println("FLIGHT DETAILS:");
-        System.out.printf(format, "Flight ID:", response.getInfos().get(0).getId());
+        System.out.printf(format, "Flight ID:", response.getInfos().get(0).getFlightId());
         System.out.printf(format, "Source:", response.getInfos().get(0).getSource());
         System.out.printf(format, "Destination:", response.getInfos().get(0).getDest());
         System.out.printf(format, "Date & Time:", response.getInfos().get(0).getDateTime().toNiceString());

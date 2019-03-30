@@ -10,8 +10,8 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @ToString
-public class FlightInfo extends Marshallable {
-    short id;
+public class FlightInfo {
+    short flightId;
     String source;
     String dest;
     DateTime dateTime;
@@ -19,7 +19,7 @@ public class FlightInfo extends Marshallable {
     short seatsAvailable;
 
     public FlightInfo(){
-        this.id = -1;
+        this.flightId = -1;
         this.source = "";
         this.dest = "";
         this.dateTime = new DateTime();

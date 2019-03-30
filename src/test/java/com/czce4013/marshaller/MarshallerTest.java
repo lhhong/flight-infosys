@@ -101,28 +101,28 @@ public class MarshallerTest {
 
     }
 
-    @Test
-    public void testMarshallFlightInfo() {
-        DateTime dateTime = new DateTime(2014,2,3,4,5);
-        FlightInfo query = new FlightInfo((short) 1,"Changi","KLIA",dateTime,1.23F,(short) 5);
+    // @Test
+    // public void testMarshallFlightInfo() {
+    //     DateTime dateTime = new DateTime(2014,2,3,4,5);
+    //     FlightInfo query = new FlightInfo((short) 1,"Changi","KLIA",dateTime,1.23F,(short) 5);
 
-        byte[] byteList = query.marshall();
-        FlightInfo recast = Marshallable.unmarshall(byteList, FlightInfo.class);
+    //     byte[] byteList = query.marshall();
+    //     FlightInfo recast = Marshallable.unmarshall(byteList, FlightInfo.class);
 
-        // Another way to use unmarshall if you don't know the class type
-        FlightInfo recast2 = null;
-        Marshallable m = Marshallable.unmarshall(byteList);
-        if (m instanceof FlightInfo) {
-            recast2 = (FlightInfo) m;
-        }
+    //     // Another way to use unmarshall if you don't know the class type
+    //     FlightInfo recast2 = null;
+    //     Marshallable m = Marshallable.unmarshall(byteList);
+    //     if (m instanceof FlightInfo) {
+    //         recast2 = (FlightInfo) m;
+    //     }
 
-        logger.info("original: {}", query);
-        logger.info("recast: {}", recast);
-        logger.info("recast2: {}", recast2);
-        assert JSON.toJSON(query).equals(JSON.toJSON(recast));
-        assert JSON.toJSON(query).equals(JSON.toJSON(recast2));
+    //     logger.info("original: {}", query);
+    //     logger.info("recast: {}", recast);
+    //     logger.info("recast2: {}", recast2);
+    //     assert JSON.toJSON(query).equals(JSON.toJSON(recast));
+    //     assert JSON.toJSON(query).equals(JSON.toJSON(recast2));
 
-    }
+    // }
 
     @Test
     public void testMarshallServerResponse() {
@@ -132,7 +132,7 @@ public class MarshallerTest {
         FlightInfo query2 = new FlightInfo((short) 2,"Bangkok","Tokyo",dateTime2,2.34F,(short) 10);
 
         FlightInfo[] arr ={query, query2};
-        ServerResponse queryArray = new ServerResponse(200,Arrays.asList(arr));
+        ServerResponse queryArray = new ServerResponse(0, 200,Arrays.asList(arr));
         byte[] byteList = queryArray.marshall();
         ServerResponse recast = Marshallable.unmarshall(byteList, ServerResponse.class);
 

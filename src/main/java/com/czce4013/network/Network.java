@@ -1,26 +1,82 @@
 package com.czce4013.network;
 
-import com.czce4013.entity.Response;
+import com.czce4013.entity.Ack;
+import com.czce4013.entity.ClientQuery;
+import com.czce4013.entity.ServerResponse;
 import com.czce4013.marshaller.Marshallable;
-import lombok.AllArgsConstructor;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class Network {
     UDPCommunicator communicator;
+    private final IdContainer idGen = new IdContainer();
+    private static final long SEND_TIMEOUT = 1000;
 
-    public Network(UDPCommunicator communicator) {
+    ConcurrentMap<Integer, Consumer<ServerResponse>> callbacks = new ConcurrentHashMap<>();
+    ConcurrentMap<Integer, Thread> threadsToBreak = new ConcurrentHashMap<>();
+    ConcurrentMap<Integer, Consumer<Ack>> acks = new ConcurrentHashMap<>();
+    BiConsumer<InetSocketAddress, ClientQuery> serverAction;
+
+    Network(UDPCommunicator communicator) {
         this.communicator = communicator;
+        runReceiver();
     }
 
-    public abstract void receive(Consumer<Response> callback, int timeout);
-    public abstract Response receive();
+    protected abstract void runReceiver();
 
-    public abstract void send(Marshallable data, InetSocketAddress dest);
+    void sendAck(int ackId, InetSocketAddress dest) {
+        Ack ack = new Ack(ackId);
+        int id = idGen.get();
+        ack.setId(id);
+        communicator.send(ack, dest);
+    }
 
-    public void send(Marshallable data) {
-        send(data, communicator.getSocketAddress());
+    public void receive(int id, Consumer<ServerResponse> callback, boolean continuous, int blockTime) {
+        callbacks.put(id, callback);
+        if (!continuous) {
+            threadsToBreak.put(id, Thread.currentThread());
+        }
+        try {
+            Thread.sleep(blockTime*1000);
+        } catch (InterruptedException ignored) {}
+        callbacks.remove(id);
+        if (!continuous) {
+            threadsToBreak.remove(id);
+        }
+    }
+
+    public void receive(BiConsumer<InetSocketAddress, ClientQuery> serverOps) {
+        this.serverAction = serverOps;
+        Thread.yield();
+    }
+
+    public int send(Marshallable data, InetSocketAddress dest) {
+        int id = idGen.get();
+        data.setId(id);
+        Thread t = new Thread(() -> {
+            try {
+                while (true) {
+                    communicator.send(data, dest);
+                    Thread.sleep(SEND_TIMEOUT);
+                }
+            } catch (InterruptedException ignored) {}
+        });
+
+        acks.put(id, ack -> {
+            t.interrupt();
+            acks.remove(id);
+        });
+        t.start();
+
+        return id;
+    }
+
+    public int send(Marshallable data) {
+        return send(data, communicator.getServerSocket());
     }
 
 }

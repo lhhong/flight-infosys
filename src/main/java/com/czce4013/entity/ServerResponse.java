@@ -12,14 +12,24 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-@ToString
-public class ServerResponse extends Marshallable {
+@ToString(callSuper = true)
+public class ServerResponse extends Marshallable implements Cloneable {
+    int queryId;
     int status;
     List<FlightInfo> infos;
 
     public ServerResponse(){
         status = -1;
         infos = new ArrayList<>();
+    }
+
+    public ServerResponse clone() {
+        try {
+            return (ServerResponse) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

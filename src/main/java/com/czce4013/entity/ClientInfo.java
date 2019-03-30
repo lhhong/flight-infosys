@@ -11,10 +11,12 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class ClientInfo {
+    int queryId;
     SocketAddress socket;
     long expire;
 
-    public ClientInfo(SocketAddress socket, int timeout) {
+    public ClientInfo(int queryId, SocketAddress socket, int timeout) {
+        this.queryId = queryId;
         this.socket = socket;
         this.expire = System.currentTimeMillis() + timeout * 1000;
     }

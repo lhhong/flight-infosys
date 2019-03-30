@@ -18,14 +18,22 @@ public class Marshaller {
     public static Object unmarshall(byte[] data) throws ClassNotFoundException {
         List<Byte> byteList = new LinkedList<>(Bytes.asList(data));
         String className = unmarshallString(byteList);
-        return unmarshallObject(byteList, Class.forName(className));
+        int id = unmarshallInt(byteList);
+        Object o = unmarshallObject(byteList, Class.forName(className));
+        if (o instanceof Marshallable) {
+            Marshallable m = (Marshallable) o;
+            m.setId(id);
+            return m;
+        }
+        return o;
     }
 
-    public static byte[] marshall(Object obj) {
+    public static byte[] marshall(Marshallable obj) {
         List<Byte> res = new ArrayList<>();
 
         String className = obj.getClass().getName();
         marshallString(className, res);
+        marshallInt(obj.getId(), res);
 
         marshallObject(obj, res);
         logger.debug(Arrays.toString(res.toArray()));

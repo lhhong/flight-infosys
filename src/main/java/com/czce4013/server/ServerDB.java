@@ -1,11 +1,9 @@
 package com.czce4013.server;
 
 import com.czce4013.entity.ClientInfo;
-import com.czce4013.entity.ClientQuery;
 import com.czce4013.entity.DateTime;
 import com.czce4013.entity.FlightInfo;
 
-import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +31,7 @@ public class ServerDB {
         flightData.add(new FlightInfo((short) 5232,"SINGAPORE","BANGKOK",dateTime,5.23F,(short) 7));
     }
 
-    public List findFlightID(String source, String dest){
+    public List<FlightInfo> findFlightID(String source, String dest){
         ArrayList<FlightInfo> returnArray = new ArrayList<FlightInfo>();
         for (FlightInfo flight:flightData){
             if (flight.getSource().equals(source) && flight.getDest().equals(dest)){
@@ -43,20 +41,20 @@ public class ServerDB {
         return returnArray;
     }
 
-    public List getFlightDetails(int id){
+    public List<FlightInfo> getFlightDetails(int id){
         ArrayList<FlightInfo> returnArray = new ArrayList<FlightInfo>();
         for (FlightInfo flight:flightData){
-            if (flight.getId() == id){
+            if (flight.getFlightId() == id){
                 returnArray.add(flight);
             }
         }
         return returnArray;
     }
 
-    public List makeReservation(int id, int seatsReserve) {
+    public List<FlightInfo> makeReservation(int id, int seatsReserve) {
         ArrayList<FlightInfo> returnArray = new ArrayList<FlightInfo>();
         for (FlightInfo flight:flightData){
-            if (flight.getId() == id){
+            if (flight.getFlightId() == id){
                 flight.setSeatsAvailable((short) (flight.getSeatsAvailable()-seatsReserve));
                 returnArray.add(flight);
             }
@@ -64,17 +62,17 @@ public class ServerDB {
         return returnArray;
     }
 
-    public void observeFlight(int flightId,SocketAddress socketAddress, int timeout) {
+    public void observeFlight(int flightId, ClientInfo clientInfo) {
         if (!callbackList.containsKey(flightId)){
             callbackList.put(flightId,new ArrayList<>());
         }
         List<ClientInfo> addresses = callbackList.get(flightId);
-        addresses.add(new ClientInfo(socketAddress, timeout));
+        addresses.add(clientInfo);
         callbackList.put(flightId,addresses);
     }
 
-    public static List<SocketAddress> getCallBackAddresses(int flightID){
-        return callbackList.get(flightID).stream().map(ClientInfo::getSocket).collect(Collectors.toList());
+    public static List<ClientInfo> getCallBackAddresses(int flightID){
+        return callbackList.get(flightID);
     }
 
     public static void filterCallBackAddresses() {

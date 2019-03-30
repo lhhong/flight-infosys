@@ -12,17 +12,8 @@ public class AtMostOnceNetwork extends Network {
     }
 
     @Override
-    public void receive(Consumer<Response> callback, int timeout) {
+    protected void runReceiver() {
 
     }
 
-    @Override
-    public Response receive() {
-        return null;
-    }
-
-    @Override
-    public void send(Marshallable data, InetSocketAddress dest) {
-
-    }
 }

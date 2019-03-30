@@ -1,7 +1,6 @@
 package com.czce4013.client;
 
 import com.czce4013.entity.ClientQuery;
-import com.czce4013.entity.ServerResponse;
 import com.czce4013.network.AtLeastOnceNetwork;
 import com.czce4013.network.Network;
 import com.czce4013.network.PoorUDPCommunicator;
@@ -41,14 +40,14 @@ public class Client {
                 query = new ClientQuery();
                 int flightNo = ClientTextUI.getFlightNo();
                 query.setType(2);
-                query.getFlight().setId((short) flightNo);
+                query.getFlight().setFlightId((short) flightNo);
                 queryFlightDetails(query);
                 break;
             case 3:
                 query = new ClientQuery();
                 int[] reservationDetails = ClientTextUI.getReservationDetails();
                 query.setType(3);
-                query.getFlight().setId((short) reservationDetails[0]);
+                query.getFlight().setFlightId((short) reservationDetails[0]);
                 query.getFlight().setSeatsAvailable((short) reservationDetails[1]);
                 makeReservation(query);
                 break;
@@ -57,7 +56,7 @@ public class Client {
                 int[] monitoringDetails = ClientTextUI.monitorFlight();
                 query.setType(4);
                 query.setTimeout(monitoringDetails[1]);
-                query.getFlight().setId((short) monitoringDetails[0]);
+                query.getFlight().setFlightId((short) monitoringDetails[0]);
                 monitorFlight(query);
                 break;
             case 5:
@@ -74,49 +73,49 @@ public class Client {
     }
 
     private void findFlightNo(ClientQuery query) {
-        network.send(query);
-        ServerResponse response = (ServerResponse)network.receive().getData();
-        if (response.getStatus() == 200){
-            ClientTextUI.printFlightID(query,response);
-        }
-        else{
-            ClientTextUI.printErrorMessage(response);
-        }
+        int id = network.send(query);
+        network.receive(id, (response) -> {
+            if (response.getStatus() == 200){
+                ClientTextUI.printFlightID(query,response);
+            }
+            else{
+                ClientTextUI.printErrorMessage(response);
+            }
+        }, false, 5);
     }
 
     private void queryFlightDetails(ClientQuery query) {
-        network.send(query);
-        ServerResponse response = (ServerResponse)network.receive().getData();
-        if (response.getStatus() == 200){
-            ClientTextUI.printFlightDetails(query,response);
-        }
-        else{
-            ClientTextUI.printErrorMessage(response);
-        }
+        int id = network.send(query);
+        network.receive(id, (response) -> {
+            if (response.getStatus() == 200) {
+                ClientTextUI.printFlightDetails(query, response);
+            } else {
+                ClientTextUI.printErrorMessage(response);
+            }
+        }, false, 5);
     }
 
     private void makeReservation(ClientQuery query) {
-        network.send(query);
-        ServerResponse response = (ServerResponse)network.receive().getData();
-        if (response.getStatus() == 200){
-            ClientTextUI.printReservationConfirmation(query,response);
-        }
-        else {
-            ClientTextUI.printErrorMessage(response);
-        }
+        int id = network.send(query);
+        network.receive(id, (response) -> {
+            if (response.getStatus() == 200) {
+                ClientTextUI.printReservationConfirmation(query, response);
+            } else {
+                ClientTextUI.printErrorMessage(response);
+            }
+        }, false, 5);
     }
 
     private void monitorFlight(ClientQuery query) {
-        network.send(query);
-        network.receive((reply) -> {
-            ServerResponse response = (ServerResponse) reply.getData();
+        int id = network.send(query);
+        network.receive(id, (response) -> {
             if (response.getStatus() == 200){
                 ClientTextUI.printFlightUpdate(query,response);
             }
             else{
                 ClientTextUI.printErrorMessage(response);
             }
-        }, query.getTimeout());
+        }, true, query.getTimeout());
     }
 
     private void unknown1() {
