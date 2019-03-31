@@ -2,22 +2,20 @@ package com.czce4013.server;
 
 import com.czce4013.entity.ClientInfo;
 import com.czce4013.entity.FlightInfo;
-import com.czce4013.entity.Response;
 import com.czce4013.entity.ServerResponse;
-import com.czce4013.network.AtLeastOnceNetwork;
-import com.czce4013.network.Network;
-import com.czce4013.network.PoorUDPCommunicator;
+import com.czce4013.network.*;
+import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 
+@AllArgsConstructor
 public class Server {
     private Network network;
 
-    public Server(){
-        network = new AtLeastOnceNetwork(new PoorUDPCommunicator(2222));
-    }
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     public void run() {
         System.out.println("Running Server...");
@@ -77,7 +75,20 @@ public class Server {
     }
 
     public static void main(String[] args){
-        Server s = new Server();
+        Server s;
+        float failProb = 0.1F;
+        if (args.length > 1) {
+            failProb =  Float.parseFloat(args[1]);
+        }
+        UDPCommunicator communicator =  new PoorUDPCommunicator(2222, failProb);
+        if (args.length > 0 && args[0].equals("AtMostOnce")) {
+            s = new Server(new AtMostOnceNetwork(communicator));
+            logger.info("Initialized AtMostOnce network with fail probability of {}.", failProb);
+        }
+        else {
+            s = new Server(new AtLeastOnceNetwork(communicator));
+            logger.info("Initialized AtLeastOnce network with fail probability of {}.", failProb);
+        }
         s.run();
     }
 }

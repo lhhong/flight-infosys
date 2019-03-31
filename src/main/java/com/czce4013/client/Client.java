@@ -1,32 +1,48 @@
 package com.czce4013.client;
 
 import com.czce4013.entity.ClientQuery;
-import com.czce4013.network.AtLeastOnceNetwork;
-import com.czce4013.network.Network;
-import com.czce4013.network.PoorUDPCommunicator;
-import com.czce4013.network.UDPCommunicator;
+import com.czce4013.network.*;
+import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
+@AllArgsConstructor
 public class Client {
     private Network network;
 
+    private static final Logger logger = LoggerFactory.getLogger(Client.class);
+
     public static void main(String[] args){
-        Client s = new Client();
+        Client c;
         String LocalIPAddress = UDPCommunicator.getIPaddress();
         InetSocketAddress socketAddress = new InetSocketAddress(LocalIPAddress,2222);
-        s.connect(socketAddress);
+        float failProb = 0.1F;
+        if (args.length > 1) {
+            failProb =  Float.parseFloat(args[1]);
+        }
+        UDPCommunicator communicator =  new PoorUDPCommunicator(socketAddress, failProb);
+        if (args.length > 0 && args[0].equals("AtMostOnce")) {
+            c = new Client(new AtMostOnceNetwork(communicator));
+            logger.info("Initialized AtMostOnce network with fail probability of {}.", failProb);
+        }
+        else {
+            c = new Client(new AtLeastOnceNetwork(communicator));
+            logger.info("Initialized AtLeastOnce network with fail probability of {}.", failProb);
+        }
+        //noinspection InfiniteLoopStatement
         while (true) {
-            s.run();
+            c.run();
         }
     }
 
-    public void run() {
+    private void run() {
         ClientTextUI.printMenu();
 
         int userOption = ClientTextUI.getUserOption();
 
-        ClientQuery query = null;
+        ClientQuery query;
         switch (userOption) {
             case 1:
                 query = new ClientQuery();
@@ -126,7 +142,4 @@ public class Client {
         //TODO
     }
 
-    private void connect (InetSocketAddress socketAddress){
-        network = new AtLeastOnceNetwork(new PoorUDPCommunicator(socketAddress));
-    }
 }

@@ -17,8 +17,8 @@ import java.util.function.Consumer;
 public abstract class Network {
     UDPCommunicator communicator;
     private final IdContainer idGen = new IdContainer();
-    private static final long SEND_TIMEOUT = 1000;
-    private static final int MAX_TRY = 5;
+    protected static final long SEND_TIMEOUT = 500;
+    protected static final int MAX_TRY = 5;
     private static final Logger logger = LoggerFactory.getLogger(Network.class);
 
     ConcurrentMap<Integer, Consumer<ServerResponse>> callbacks = new ConcurrentHashMap<>();
@@ -46,7 +46,7 @@ public abstract class Network {
                 }
                 else {
                     sendAck(resp.getData().getId(), resp.getOrigin());
-                    if (!continueResponse(resp)) break;
+                    if (!continueResponse(resp)) continue;
                     if (resp.getData() instanceof ServerResponse) {
                         ServerResponse serverResponse = (ServerResponse) resp.getData();
                         Consumer<ServerResponse> c = callbacks.get(serverResponse.getQueryId());
