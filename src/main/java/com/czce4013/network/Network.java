@@ -74,25 +74,21 @@ public abstract class Network {
         communicator.send(ack, dest);
     }
 
-    // Returns true if completed successfully
-    public boolean receive(int id, Consumer<ServerResponse> callback, boolean continuous, int blockTime) {
+    public void receive(int id, Consumer<ServerResponse> callback, boolean continuous, int blockTime) {
         callbacks.put(id, callback);
         if (!continuous) {
             threadsToBreak.put(id, Thread.currentThread());
         }
         try {
             Thread.sleep(blockTime*1000);
-        } catch (InterruptedException e) {
-            return true;
-        } finally {
-            callbacks.remove(id);
+        } catch (InterruptedException ignored) {
         }
+        callbacks.remove(id);
         if (!continuous) {
             logger.error("Failed to retrieve results");
+            callback.accept(new ServerResponse(id, 500, null));
             threadsToBreak.remove(id);
-            return false;
         }
-        return true;
     }
 
     public void receive(BiConsumer<InetSocketAddress, ClientQuery> serverOps) {

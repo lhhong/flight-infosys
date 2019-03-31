@@ -130,8 +130,12 @@ public class ClientTextUI {
         System.out.println("============== ERROR CODE "+ response.getStatus()+ " ==============" );
         System.out.println("\n=================================================");
         switch (response.getStatus()){
+            case 500:
+                System.out.println("Internal Server Error");
+                System.out.println("\n=================================================");
+                break;
             case 404:
-                System.out.println("Server Error");
+                System.out.println("Page Not Found");
                 System.out.println("\n=================================================");
                 break;
             default:
