@@ -2,6 +2,7 @@ package com.czce4013.network;
 
 import com.czce4013.entity.Ack;
 import com.czce4013.entity.ClientQuery;
+import com.czce4013.entity.Response;
 import com.czce4013.entity.ServerResponse;
 import com.czce4013.marshaller.Marshallable;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ public abstract class Network {
 
     ConcurrentMap<Integer, Consumer<ServerResponse>> callbacks = new ConcurrentHashMap<>();
     ConcurrentMap<Integer, Thread> threadsToBreak = new ConcurrentHashMap<>();
-    ConcurrentMap<Integer, Consumer<Ack>> acks = new ConcurrentHashMap<>();
+    ConcurrentMap<Integer, Thread> acks = new ConcurrentHashMap<>();
     BiConsumer<InetSocketAddress, ClientQuery> serverAction;
 
     Network(UDPCommunicator communicator) {
@@ -30,7 +31,41 @@ public abstract class Network {
         runReceiver();
     }
 
-    protected abstract void runReceiver();
+    protected abstract boolean continueResponse(Response data);
+
+    private void runReceiver() {
+        Thread t = new Thread(() -> {
+            while (true) {
+                Response resp = communicator.receive();
+                if (resp.getData() instanceof Ack) {
+                    Ack ack = (Ack) resp.getData();
+                    Thread ackT = acks.get(ack.getAckId());
+                    if (ackT == null) continue; // Already acked
+                    acks.remove(ack.getAckId());
+                    ackT.interrupt();
+                }
+                else {
+                    sendAck(resp.getData().getId(), resp.getOrigin());
+                    if (!continueResponse(resp)) break;
+                    if (resp.getData() instanceof ServerResponse) {
+                        ServerResponse serverResponse = (ServerResponse) resp.getData();
+                        Consumer<ServerResponse> c = callbacks.get(serverResponse.getQueryId());
+                        if (c == null) {
+                            continue; //Results were already displayed
+                        }
+                        c.accept(serverResponse);
+                        if (threadsToBreak.containsKey(serverResponse.getQueryId())) {
+                            threadsToBreak.get(serverResponse.getQueryId()).interrupt();
+                        }
+                    } else if (resp.getData() instanceof ClientQuery) {
+                        ClientQuery clientQuery = (ClientQuery) resp.getData();
+                        serverAction.accept(resp.getOrigin(), clientQuery);
+                    }
+                }
+            }
+        });
+        t.start();
+    }
 
     void sendAck(int ackId, InetSocketAddress dest) {
         Ack ack = new Ack(ackId);
@@ -71,10 +106,7 @@ public abstract class Network {
             } catch (InterruptedException ignored) {}
         });
 
-        acks.put(id, ack -> {
-            t.interrupt();
-            acks.remove(id);
-        });
+        acks.put(id, t);
         t.start();
 
         return id;

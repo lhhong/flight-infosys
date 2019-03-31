@@ -14,35 +14,10 @@ public class AtLeastOnceNetwork extends Network {
         super(communicator);
     }
 
-    protected void runReceiver() {
-        Thread t = new Thread(() -> {
-            while (true) {
-                Response resp = communicator.receive();
-                if (resp.getData() instanceof Ack) {
-                    Ack ack = (Ack) resp.getData();
-                    Consumer<Ack> c = acks.get(ack.getAckId());
-                    if (c == null) continue; // Already acked
-                    c.accept(ack);
-                }
-                else if (resp.getData() instanceof ServerResponse) {
-                    ServerResponse serverResponse = (ServerResponse) resp.getData();
-                    sendAck(serverResponse.getId(), resp.getOrigin());
-                    Consumer<ServerResponse> c = callbacks.get(serverResponse.getQueryId());
-                    if (c == null) {
-                        continue; //Results were already displayed
-                    }
-                    c.accept(serverResponse);
-                    if (threadsToBreak.containsKey(serverResponse.getQueryId())) {
-                        threadsToBreak.get(serverResponse.getQueryId()).interrupt();
-                    }
-                }
-                else if (resp.getData() instanceof ClientQuery) {
-                    ClientQuery clientQuery = (ClientQuery) resp.getData();
-                    sendAck(clientQuery.getId(), resp.getOrigin());
-                    serverAction.accept(resp.getOrigin(), clientQuery);
-                }
-            }
-        });
-        t.start();
+    @Override
+    protected boolean continueResponse(Response data) {
+        //Do nothing for at least once
+        return true;
     }
+
 }
