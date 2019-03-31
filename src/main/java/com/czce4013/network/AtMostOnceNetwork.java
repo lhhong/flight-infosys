@@ -25,7 +25,7 @@ public class AtMostOnceNetwork extends Network {
             long lastReceived = received.get(data.getData().getId());
 
             if (lastReceived < System.currentTimeMillis() - (5000 + SEND_TIMEOUT * MAX_TRY)) {
-                // This is a different message, id have cycled
+                // Given ping uncertainty of 5 sec, this is a different message, id have cycled
                 received.put(data.getData().getId(), System.currentTimeMillis());
                 return true;
             }
