@@ -4,6 +4,8 @@ import com.czce4013.entity.Ack;
 import com.czce4013.entity.ClientQuery;
 import com.czce4013.entity.ServerResponse;
 import com.czce4013.marshaller.Marshallable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +17,8 @@ public abstract class Network {
     UDPCommunicator communicator;
     private final IdContainer idGen = new IdContainer();
     private static final long SEND_TIMEOUT = 1000;
+    private static final int MAX_TRY = 5;
+    private static final Logger logger = LoggerFactory.getLogger(Network.class);
 
     ConcurrentMap<Integer, Consumer<ServerResponse>> callbacks = new ConcurrentHashMap<>();
     ConcurrentMap<Integer, Thread> threadsToBreak = new ConcurrentHashMap<>();
@@ -59,10 +63,11 @@ public abstract class Network {
         data.setId(id);
         Thread t = new Thread(() -> {
             try {
-                while (true) {
+                 for (int i = 0; i < MAX_TRY; i++) {
                     communicator.send(data, dest);
                     Thread.sleep(SEND_TIMEOUT);
-                }
+                 }
+                 logger.error("Failed to send after {} tries: {}", MAX_TRY, data);
             } catch (InterruptedException ignored) {}
         });
 

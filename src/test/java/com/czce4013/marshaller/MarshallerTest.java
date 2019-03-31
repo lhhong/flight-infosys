@@ -36,6 +36,8 @@ public class MarshallerTest {
         short f;
         float g;
         Date h;
+        boolean i;
+        TestSubClass j;
 
         // Will not serialize data in IgnoreField
         @IgnoreField
@@ -57,7 +59,7 @@ public class MarshallerTest {
     public void testMarshall() {
         TestSubClass scObject = new TestSubClass(4);
         List<Integer> l = Arrays.asList(6,7,8);
-        TestClass cObject = new TestClass("string-a", 2, l, scObject, 4.32, (short) 12, 1.53F, new Date(20000000), 1.23);
+        TestClass cObject = new TestClass("string-a", 2, null, scObject, 4.32, (short) 12, 0, null, true, null, 1.23);
 
         byte[] byteList = cObject.marshall();
         TestClass recast = Marshallable.unmarshall(byteList, TestClass.class);

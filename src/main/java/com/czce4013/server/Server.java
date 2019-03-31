@@ -2,6 +2,7 @@ package com.czce4013.server;
 
 import com.czce4013.entity.ClientInfo;
 import com.czce4013.entity.FlightInfo;
+import com.czce4013.entity.Response;
 import com.czce4013.entity.ServerResponse;
 import com.czce4013.network.AtLeastOnceNetwork;
 import com.czce4013.network.Network;
@@ -35,29 +36,21 @@ public class Server {
                 case 1:
                     flightID = database.findFlightID(query.getFlight().getSource(), query.getFlight().getDest());
                     response = new ServerResponse();
-                    response.setQueryId(query.getId());
-                    response.setStatus(200);
-                    response.setInfos(flightID);
+                    response = new ServerResponse(query.getId(), 200, flightID);
                     network.send(response, origin);
                     System.out.println(response.toString());
                     break;
                 case 2:
                     flightID = database.getFlightDetails(query.getFlight().getFlightId());
-                    response = new ServerResponse();
-                    response.setQueryId(query.getId());
-                    response.setStatus(200);
-                    response.setInfos(flightID);
+                    response = new ServerResponse(query.getId(), 200, flightID);
                     network.send(response, origin);
                     System.out.println(response.toString());
                     break;
                 case 3:
                     flightID = database.makeReservation(query.getFlight().getFlightId(), query.getFlight().getSeatsAvailable());
-                    response = new ServerResponse();
-                    response.setQueryId(query.getId());
-                    response.setStatus(200);
-                    response.setInfos(flightID);
+                    response = new ServerResponse(query.getId(), 200, flightID);
                     network.send(response, origin);
-                    reservationCallback(response.clone());
+                    reservationCallback(response);
                     System.out.println(response.toString());
                     break;
                 case 4:
@@ -65,9 +58,8 @@ public class Server {
                     database.observeFlight(query.getFlight().getFlightId(), clientInfo);
                     break;
                 default:
-                    response = new ServerResponse();
-                    response.setQueryId(query.getId());
-                    response.setStatus(404);
+                    response = new ServerResponse(query.getId(), 404, null);
+                    network.send(response, origin);
                     break;
             }
         });
@@ -78,8 +70,9 @@ public class Server {
         ServerDB.filterCallBackAddresses();
         List<ClientInfo> clientInfos = ServerDB.getCallBackAddresses(flightID);
         for (ClientInfo clientInfo: clientInfos) {
-            response.setQueryId(clientInfo.getQueryId());
-            network.send(response, (InetSocketAddress) clientInfo.getSocket());
+            ServerResponse dupResponse = response.clone();
+            dupResponse.setQueryId(clientInfo.getQueryId());
+            network.send(dupResponse, (InetSocketAddress) clientInfo.getSocket());
         }
     }
 

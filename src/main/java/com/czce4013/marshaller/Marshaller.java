@@ -103,22 +103,28 @@ public class Marshaller {
 
     private static Object unmarshallSelect(List<Byte> byteList, Type type) {
 
+        boolean notNull = unmarshallBoolean(byteList);
+        if (!notNull) return null;
+
         String[] typeWithGeneric = type.getTypeName().split("[<>]");
         switch (typeWithGeneric[0]) {
             case "java.lang.String":
                 return unmarshallString(byteList);
-            case "short":
             case "java.lang.Short":
+            case "short":
                 return unmarshallShort(byteList);
-            case "int":
             case "java.lang.Integer":
+            case "int":
                 return unmarshallInt(byteList);
-            case "float":
             case "java.lang.Float":
+            case "float":
                 return unmarshallFloat(byteList);
-            case "double":
             case "java.lang.Double":
+            case "double":
                 return unmarshallDouble(byteList);
+            case "java.lang.Boolean":
+            case "boolean":
+                return unmarshallBoolean(byteList);
             case "java.util.List":
                 Type genericType = ((ParameterizedType) type).getActualTypeArguments()[0];
                 return unmarshallList(byteList, genericType);
@@ -131,25 +137,35 @@ public class Marshaller {
 
     private static void marshallSelect(String[] typeWithGeneric, Object o, List<Byte> res) {
 
+        if (o == null) {
+            marshallBoolean(false, res);
+            return;
+        }
+        marshallBoolean(true, res);
+
         switch (typeWithGeneric[0]) {
             case "java.lang.String":
                 marshallString(o, res);
                 break;
-            case "short":
             case "java.lang.Short":
+            case "short":
                 marshallShort(o, res);
                 break;
-            case "int":
             case "java.lang.Integer":
+            case "int":
                 marshallInt(o, res);
                 break;
-            case "float":
             case "java.lang.Float":
+            case "float":
                 marshallFloat(o, res);
                 break;
-            case "double":
             case "java.lang.Double":
+            case "double":
                 marshallDouble(o, res);
+                break;
+            case "java.lang.Boolean":
+            case "boolean":
+                marshallBoolean(o, res);
                 break;
             case "java.util.List":
                 marshallList(o, Arrays.copyOfRange(typeWithGeneric,1,typeWithGeneric.length), res);
@@ -207,6 +223,15 @@ public class Marshaller {
         res.addAll(shortToByteList(i));
     }
 
+    private static float unmarshallFloat(List<Byte> byteList) {
+        return floatFromByteList(byteList);
+    }
+
+    private static void marshallFloat(Object o, List<Byte> res) {
+        float d = (float) o;
+        res.addAll(floatToByteList(d));
+    }
+
     private static double unmarshallDouble(List<Byte> byteList) {
         return doubleFromByteList(byteList);
     }
@@ -216,13 +241,13 @@ public class Marshaller {
         res.addAll(doubleToByteList(d));
     }
 
-    private static float unmarshallFloat(List<Byte> byteList) {
-        return floatFromByteList(byteList);
+    private static boolean unmarshallBoolean(List<Byte> byteList) {
+        return booleanFromByteList(byteList);
     }
 
-    private static void marshallFloat(Object o, List<Byte> res) {
-        float d = (float) o;
-        res.addAll(floatToByteList(d));
+    private static void marshallBoolean(Object o, List<Byte> res) {
+        boolean b = (boolean) o;
+        res.addAll(booleanToByteList(b));
     }
 
     private static String unmarshallString(List<Byte> byteList) {
@@ -306,5 +331,16 @@ public class Marshaller {
     private static List<Byte> floatToByteList(float v) {
         byte[] array = ByteBuffer.allocate(Float.BYTES).putFloat(v).array();
         return Bytes.asList(array);
+    }
+
+    private static boolean booleanFromByteList(List<Byte> byteList) {
+        Byte bool = byteList.remove(0);
+        return bool != (byte) 0;
+    }
+
+    private static List<Byte> booleanToByteList(boolean v) {
+        byte b = (byte) 0;
+        if (v) b = (byte) 1;
+        return Bytes.asList(b);
     }
 }

@@ -1,6 +1,7 @@
 package com.czce4013.entity;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -11,13 +12,10 @@ import java.util.Date;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @ToString
 public class DateTime {
     Date date;
-
-    public DateTime(){
-        this.date = new Date(0);
-    }
 
     public DateTime(int y,int mo, int d, int h,int mi){
         Calendar cal = Calendar.getInstance();

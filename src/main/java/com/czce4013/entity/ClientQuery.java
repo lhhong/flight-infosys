@@ -7,15 +7,11 @@ import lombok.*;
 @Setter
 @ToString(callSuper = true)
 @AllArgsConstructor
+@NoArgsConstructor
 public class ClientQuery extends Marshallable {
     int type;
     int timeout;
-    FlightInfo flight;
-
-    public ClientQuery(){
-        type = -1;
-        flight = new FlightInfo();
-    }
+    FlightInfo flight = new FlightInfo();
 
     public ClientQuery(int type, FlightInfo flight) {
         this.type = type;

@@ -26,21 +26,20 @@ public class AtLeastOnceNetwork extends Network {
                 }
                 else if (resp.getData() instanceof ServerResponse) {
                     ServerResponse serverResponse = (ServerResponse) resp.getData();
+                    sendAck(serverResponse.getId(), resp.getOrigin());
                     Consumer<ServerResponse> c = callbacks.get(serverResponse.getQueryId());
                     if (c == null) {
-                        sendAck(serverResponse.getId(), resp.getOrigin());
                         continue; //Results were already displayed
                     }
                     c.accept(serverResponse);
                     if (threadsToBreak.containsKey(serverResponse.getQueryId())) {
                         threadsToBreak.get(serverResponse.getQueryId()).interrupt();
                     }
-                    sendAck(serverResponse.getId(), resp.getOrigin());
                 }
                 else if (resp.getData() instanceof ClientQuery) {
                     ClientQuery clientQuery = (ClientQuery) resp.getData();
-                    serverAction.accept(resp.getOrigin(), clientQuery);
                     sendAck(clientQuery.getId(), resp.getOrigin());
+                    serverAction.accept(resp.getOrigin(), clientQuery);
                 }
             }
         });
