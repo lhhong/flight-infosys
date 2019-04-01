@@ -82,12 +82,14 @@ public abstract class Network {
         try {
             Thread.sleep(blockTime*1000);
         } catch (InterruptedException ignored) {
+            return;
+        } finally {
+            callbacks.remove(id);
+            threadsToBreak.remove(id);
         }
-        callbacks.remove(id);
         if (!continuous) {
             logger.error("Failed to retrieve results");
             callback.accept(new ServerResponse(id, 500, null));
-            threadsToBreak.remove(id);
         }
     }
 
