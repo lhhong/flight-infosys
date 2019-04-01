@@ -3,7 +3,6 @@ package com.czce4013.entity;
 import com.czce4013.marshaller.Marshallable;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter

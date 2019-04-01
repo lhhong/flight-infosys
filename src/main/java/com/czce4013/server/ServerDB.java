@@ -4,8 +4,8 @@ import com.czce4013.entity.ClientInfo;
 import com.czce4013.entity.DateTime;
 import com.czce4013.entity.FlightInfo;
 
-import java.net.SocketAddress;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ public class ServerDB {
 
     public static void seed(){
         DateTime dateTime = new DateTime(2019,3,28,23,5);
-        flightData.add(new FlightInfo((short) 1001,"SINGAPORE","BANGKOK",dateTime,1.23F,(short) 5));
+        flightData.add(new FlightInfo((short) 1001,"SINGAPORE","BANGKOK",dateTime,10.23F,(short) 5));
         dateTime = new DateTime(2019,3,28,23,10);
         flightData.add(new FlightInfo((short) 2012,"KL","BANGKOK",dateTime,2.23F,(short) 15));
         dateTime = new DateTime(2019,3,28,23,15);
@@ -79,5 +79,24 @@ public class ServerDB {
         callbackList.forEach((flight, clients) -> {
             callbackList.put(flight, clients.stream().filter((c) -> c.getExpire() > System.currentTimeMillis()).collect(Collectors.toList()));
         });
+    }
+
+    public List<FlightInfo> getFlightsFrom(String source) {
+        ArrayList<FlightInfo> returnArray = new ArrayList<FlightInfo>();
+        for (FlightInfo flight:flightData){
+            if (flight.getSource().equals(source)){
+                returnArray.add(flight);
+            }
+        }
+
+        returnArray.sort(Comparator.comparing(FlightInfo::getFare));
+
+        return returnArray;
+    }
+
+    public void applySurcharge(float surcharge) {
+        for (FlightInfo flight:flightData){
+            flight.setFare(flight.getFare()*(1 + surcharge/100));
+        }
     }
 }

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -33,7 +34,7 @@ public class Server {
             switch(query.getType()) {
                 case 1:
                     flightID = database.findFlightID(query.getFlight().getSource(), query.getFlight().getDest());
-                    response = new ServerResponse();
+                    //response = new ServerResponse();
                     response = new ServerResponse(query.getId(), 200, flightID);
                     network.send(response, origin);
                     System.out.println(response.toString());
@@ -55,6 +56,18 @@ public class Server {
                     ClientInfo clientInfo = new ClientInfo(query.getId(), origin, query.getTimeout());
                     database.observeFlight(query.getFlight().getFlightId(), clientInfo);
                     break;
+                case 5:
+                    flightID = database.getFlightsFrom(query.getFlight().getSource());
+                    response = new ServerResponse(query.getId(), 200, flightID);
+                    network.send(response, origin);
+                    System.out.println(response.toString());
+                    break;
+                case 6:
+                    database.applySurcharge(query.getFlight().getFare());
+                    response = new ServerResponse(query.getId(), 200, new ArrayList<>());
+                    network.send(response, origin);
+                    System.out.println(response.toString());
+                    break;
                 default:
                     response = new ServerResponse(query.getId(), 404, null);
                     network.send(response, origin);
@@ -67,6 +80,7 @@ public class Server {
         int flightID = response.getInfos().get(0).getFlightId();
         ServerDB.filterCallBackAddresses();
         List<ClientInfo> clientInfos = ServerDB.getCallBackAddresses(flightID);
+        if (clientInfos == null) { return; }
         for (ClientInfo clientInfo: clientInfos) {
             ServerResponse dupResponse = response.clone();
             dupResponse.setQueryId(clientInfo.getQueryId());
@@ -81,6 +95,7 @@ public class Server {
             failProb =  Float.parseFloat(args[1]);
         }
         UDPCommunicator communicator =  new PoorUDPCommunicator(2222, failProb);
+        //UDPCommunicator communicator =  new UDPCommunicator(2222);
         if (args.length > 0 && args[0].equals("AtMostOnce")) {
             s = new Server(new AtMostOnceNetwork(communicator));
             logger.info("Initialized AtMostOnce network with fail probability of {}.", failProb);

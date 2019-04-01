@@ -1,6 +1,7 @@
 package com.czce4013.client;
 
 import com.czce4013.entity.ClientQuery;
+import com.czce4013.entity.FlightInfo;
 import com.czce4013.network.*;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ public class Client {
             failProb =  Float.parseFloat(args[1]);
         }
         UDPCommunicator communicator =  new PoorUDPCommunicator(socketAddress, failProb);
+        //UDPCommunicator communicator =  new UDPCommunicator(socketAddress);
         if (args.length > 0 && args[0].equals("AtMostOnce")) {
             c = new Client(new AtMostOnceNetwork(communicator));
             logger.info("Initialized AtMostOnce network with fail probability of {}.", failProb);
@@ -76,10 +78,20 @@ public class Client {
                 monitorFlight(query);
                 break;
             case 5:
-                unknown1();
+                query = new ClientQuery();
+                String source = ClientTextUI.getSource();
+                query.setType(5);
+                query.getFlight().setSource(source);
+                findFlights(query);
                 break;
             case 6:
-                unknown2();
+                query = new ClientQuery();
+                float surchargePercentage = ClientTextUI.getSurchargePercentage();
+                query.setType(6);
+                FlightInfo f = new FlightInfo();
+                f.setFare(surchargePercentage);
+                query.setFlight(f);
+                applySurcharge(query);
                 break;
             case 7:
                 System.exit(0);
@@ -133,13 +145,28 @@ public class Client {
             }
         }, true, query.getTimeout());
     }
-
-    private void unknown1() {
-        //TODO
+    //idempotent - List flights from location according to price
+    private void findFlights(ClientQuery query) {
+        int id = network.send(query);
+        network.receive(id, (response) -> {
+            if (response.getStatus() == 200) {
+                ClientTextUI.printFlightsFromSource(query, response);
+            } else {
+                ClientTextUI.printErrorMessage(response);
+            }
+        }, false, 5);
     }
 
-    private void unknown2() {
-        //TODO
+    //non-idempotent
+    private void applySurcharge(ClientQuery query) {
+        int id = network.send(query);
+        network.receive(id, (response) -> {
+            if (response.getStatus() == 200) {
+                ClientTextUI.printServerResponse();
+            } else {
+                ClientTextUI.printErrorMessage(response);
+            }
+        }, false, 5);
     }
 
 }

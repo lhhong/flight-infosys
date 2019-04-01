@@ -1,6 +1,5 @@
 package com.czce4013.entity;
 
-import com.czce4013.marshaller.Marshallable;
 import lombok.*;
 
 @Setter
@@ -8,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class FlightInfo {
+public class FlightInfo implements Cloneable{
     short flightId;
     String source;
     String dest;
@@ -16,4 +15,12 @@ public class FlightInfo {
     float fare;
     short seatsAvailable;
 
+    public FlightInfo clone(){
+        try {
+            return (FlightInfo) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

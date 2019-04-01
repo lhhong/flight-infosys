@@ -1,6 +1,7 @@
 package com.czce4013.client;
 
 import com.czce4013.entity.ClientQuery;
+import com.czce4013.entity.FlightInfo;
 import com.czce4013.entity.ServerResponse;
 
 import java.util.Scanner;
@@ -16,8 +17,8 @@ public class ClientTextUI {
         System.out.println("[2] Query Flight Details");
         System.out.println("[3] Make Flight Reservation");
         System.out.println("[4] Monitor Flight");
-        System.out.println("[5] ?????");
-        System.out.println("[6] ??????");
+        System.out.println("[5] Find Flights From Location");
+        System.out.println("[6] Apply Surcharge to Flights");
         System.out.println("[7] Exit Application");
     }
 
@@ -71,6 +72,19 @@ public class ClientTextUI {
         return monitoringDetails;
     }
 
+    public static String getSource() {
+        keyboardScanner.nextLine();
+        System.out.println("\n========== [5] Find Flights From Location ==========");
+        System.out.println("Enter Source Location: ");
+        return keyboardScanner.nextLine().toUpperCase().trim();
+    }
+
+    public static float getSurchargePercentage() {
+        System.out.println("\n========== [6] Apply Surcharge ==========");
+        System.out.println("Surcharge percentage: ");
+        return keyboardScanner.nextFloat();
+    }
+
     public static void printFlightID(ClientQuery query, ServerResponse response) {
         printServerResponse();
         System.out.println("QUERY:");
@@ -114,17 +128,29 @@ public class ClientTextUI {
     }
 
     public static void printFlightDetails(ServerResponse response){
+        printServerResponse();
         String format = "%-40s%s%n";
-        System.out.println("=================================================");
-        System.out.println("FLIGHT DETAILS:");
-        System.out.printf(format, "Flight ID:", response.getInfos().get(0).getFlightId());
-        System.out.printf(format, "Source:", response.getInfos().get(0).getSource());
-        System.out.printf(format, "Destination:", response.getInfos().get(0).getDest());
-        System.out.printf(format, "Date & Time:", response.getInfos().get(0).getDateTime().toNiceString());
-        System.out.printf(format, "AirFare:", "$"+response.getInfos().get(0).getFare());
-        System.out.printf(format, "Seats Available:", response.getInfos().get(0).getSeatsAvailable());
-        System.out.println("=================================================");
+        for (FlightInfo flight : response.getInfos()){
+            System.out.println("=================================================");
+            System.out.println("FLIGHT DETAILS:");
+            System.out.printf(format, "Flight ID:", flight.getFlightId());
+            System.out.printf(format, "Source:", flight.getSource());
+            System.out.printf(format, "Destination:", flight.getDest());
+            System.out.printf(format, "Date & Time:", flight.getDateTime().toNiceString());
+            System.out.printf("%-40s%s%.2f%n", "AirFare:","$", flight.getFare());
+            System.out.printf(format, "Seats Available:", flight.getSeatsAvailable());
+            System.out.println("=================================================");
+        }
     }
+
+    public static void printFlightsFromSource(ClientQuery query, ServerResponse response) {
+        printServerResponse();
+        String format = "%-40s%s%n";
+        System.out.println("QUERY:");
+        System.out.printf(format, "Source:", query.getFlight().getSource());
+        printFlightDetails(response);
+    }
+
     public static void printErrorMessage(ServerResponse response) {
         System.out.println("\n=================================================");
         System.out.println("============== ERROR CODE "+ response.getStatus()+ " ==============" );
@@ -146,13 +172,12 @@ public class ClientTextUI {
 
     }
 
-    private static void printServerResponse() {
+    public static void printServerResponse() {
         System.out.println("\n=================================================");
         System.out.println("================ Server Response ================" );
         System.out.println("=================================================");
         System.out.println("================= Status 200 OK =================" );
         System.out.println("=================================================");
     }
-
 
 }
