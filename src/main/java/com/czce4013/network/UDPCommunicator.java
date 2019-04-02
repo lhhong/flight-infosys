@@ -31,7 +31,7 @@ public class UDPCommunicator {
     }
 
     public void send (Marshallable data, InetSocketAddress dest){
-        logger.info("Send: {}", data);
+        //logger.info("Send: {}", data);
         byte[] byteArray = data.marshall();
         DatagramPacket packet = new DatagramPacket(byteArray,byteArray.length, dest);
 
@@ -49,7 +49,7 @@ public class UDPCommunicator {
         try {
             dSocket.receive(p);
             Response resp = new Response((InetSocketAddress) p.getSocketAddress(), Marshallable.unmarshall(p.getData()));
-            logger.info("Recv: {}", resp);
+            //logger.info("Recv: {}", resp);
             return resp;
         } catch (IOException e) {
             e.printStackTrace();

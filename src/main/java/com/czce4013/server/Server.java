@@ -26,7 +26,7 @@ public class Server {
 
         network.receive((origin, query) -> {
 
-            System.out.println(query.toString());
+            //System.out.println(query.toString());
 
             ServerResponse response= null;
             List<FlightInfo> flightID = null;
@@ -37,7 +37,7 @@ public class Server {
                     //response = new ServerResponse();
                     response = new ServerResponse(query.getId(), 200, flightID);
                     network.send(response, origin);
-                    System.out.println(response.toString());
+                    //System.out.println(response.toString());
                     break;
                 case 2:
                     flightID = database.getFlightDetails(query.getFlight().getFlightId());

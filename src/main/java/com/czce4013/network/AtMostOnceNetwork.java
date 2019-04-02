@@ -29,7 +29,7 @@ public class AtMostOnceNetwork extends Network {
                 received.put(data.getData().getId(), System.currentTimeMillis());
                 return true;
             }
-            logger.info("Duplicate found: {}", data);
+            //logger.info("Duplicate found: {}", data);
             return false;
         }
     }

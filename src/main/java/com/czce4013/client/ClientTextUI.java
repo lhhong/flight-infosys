@@ -128,7 +128,6 @@ public class ClientTextUI {
     }
 
     public static void printFlightDetails(ServerResponse response){
-        printServerResponse();
         String format = "%-40s%s%n";
         for (FlightInfo flight : response.getInfos()){
             System.out.println("=================================================");

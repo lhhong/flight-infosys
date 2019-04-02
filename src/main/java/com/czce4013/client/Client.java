@@ -169,4 +169,21 @@ public class Client {
         }, false, 5);
     }
 
+    public void testClient(int num){
+        ClientQuery query = new ClientQuery();
+        query.setType(1);
+        query.getFlight().setSource("SINGAPORE");
+        query.getFlight().setDest("BANGKOK");
+        for (int i=0;i<num;i++){
+            int id = network.send(query);
+            network.receive(id, (response) -> {
+//                if (response.getStatus() == 200) {
+//                    ClientTextUI.printServerResponse();
+//                } else {
+//                    ClientTextUI.printErrorMessage(response);
+//                }
+            }, false, 5);
+        }
+    }
+
 }

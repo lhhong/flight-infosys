@@ -88,7 +88,7 @@ public abstract class Network {
             threadsToBreak.remove(id);
         }
         if (!continuous) {
-            logger.error("Failed to retrieve results");
+            //logger.error("Failed to retrieve results");
             callback.accept(new ServerResponse(id, 500, null));
         }
     }
@@ -107,7 +107,7 @@ public abstract class Network {
                     communicator.send(data, dest);
                     Thread.sleep(SEND_TIMEOUT);
                  }
-                 logger.error("Failed to send after {} tries: {}", MAX_TRY, data);
+                 //logger.error("Failed to send after {} tries: {}", MAX_TRY, data);
                  acks.remove(id);
             } catch (InterruptedException ignored) {}
         });
