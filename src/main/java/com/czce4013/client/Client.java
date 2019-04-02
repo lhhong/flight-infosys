@@ -186,4 +186,32 @@ public class Client {
         }
     }
 
+    public void testClient2(int num){
+        ClientQuery query = new ClientQuery();
+
+        query = new ClientQuery();
+        float surchargePercentage = 10.0f;
+        query.setType(6);
+        FlightInfo f = new FlightInfo();
+        f.setFare(surchargePercentage);
+        query.setFlight(f);
+
+        for (int i=0;i<num;i++){
+            int id = network.send(query);
+            network.receive(id, (response) -> {
+//                if (response.getStatus() == 200) {
+//                    ClientTextUI.printServerResponse();
+//                } else {
+//                    ClientTextUI.printErrorMessage(response);
+//                }
+            }, false, 5);
+        }
+
+        ClientQuery query2 = new ClientQuery();
+        query2.setType(2);
+        query2.getFlight().setFlightId((short) 1001);
+        queryFlightDetails(query2);
+
+    }
+
 }

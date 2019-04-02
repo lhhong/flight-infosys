@@ -34,7 +34,7 @@ public class Main {
             logger.info("Initialized AtLeastOnce network with fail probability of {}.", failProb);
         }
         long time = System.nanoTime();
-        c.testClient(1000);
+        c.testClient2(10);
         time = System.nanoTime()-time;
 
         System.out.println("time = " +time/1e9);
