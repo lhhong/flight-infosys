@@ -51,12 +51,17 @@ public class ServerDB {
         return returnArray;
     }
 
-    public List<FlightInfo> makeReservation(int id, int seatsReserve) {
+    public List<FlightInfo> makeReservation(int id, int seatsReserve) throws InsufficientSeatsException{
         ArrayList<FlightInfo> returnArray = new ArrayList<FlightInfo>();
         for (FlightInfo flight:flightData){
             if (flight.getFlightId() == id){
-                flight.setSeatsAvailable((short) (flight.getSeatsAvailable()-seatsReserve));
-                returnArray.add(flight);
+                if(flight.getSeatsAvailable()<= seatsReserve){
+                    throw new InsufficientSeatsException();
+                }
+                else{
+                    flight.setSeatsAvailable((short) (flight.getSeatsAvailable()-seatsReserve));
+                    returnArray.add(flight);
+                }
             }
         }
         return returnArray;

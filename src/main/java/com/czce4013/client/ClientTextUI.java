@@ -153,14 +153,18 @@ public class ClientTextUI {
     public static void printErrorMessage(ServerResponse response) {
         System.out.println("\n=================================================");
         System.out.println("============== ERROR CODE "+ response.getStatus()+ " ==============" );
-        System.out.println("\n=================================================");
+        System.out.println("=================================================");
         switch (response.getStatus()){
             case 500:
                 System.out.println("Internal Server Error");
                 System.out.println("\n=================================================");
                 break;
             case 404:
-                System.out.println("Page Not Found");
+                System.out.println("No Flights Found");
+                System.out.println("\n=================================================");
+                break;
+            case 405:
+                System.out.println("Insufficient Seats");
                 System.out.println("\n=================================================");
                 break;
             default:

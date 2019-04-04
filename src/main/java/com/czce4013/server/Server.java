@@ -35,18 +35,39 @@ public class Server {
                 case 1:
                     flightID = database.findFlightID(query.getFlight().getSource(), query.getFlight().getDest());
                     //response = new ServerResponse();
-                    response = new ServerResponse(query.getId(), 200, flightID);
+                    if (flightID.isEmpty()){
+                        response = new ServerResponse(query.getId(), 404, flightID);
+                    }
+                    else{
+                        response = new ServerResponse(query.getId(), 200, flightID);
+                    }
                     network.send(response, origin);
                     //System.out.println(response.toString());
                     break;
                 case 2:
                     flightID = database.getFlightDetails(query.getFlight().getFlightId());
-                    response = new ServerResponse(query.getId(), 200, flightID);
+                    if (flightID.isEmpty()){
+                        response = new ServerResponse(query.getId(), 404, flightID);
+                    }
+                    else {
+                        response = new ServerResponse(query.getId(), 200, flightID);
+                    }
                     network.send(response, origin);
                     System.out.println(response.toString());
                     break;
                 case 3:
-                    flightID = database.makeReservation(query.getFlight().getFlightId(), query.getFlight().getSeatsAvailable());
+                    try {
+                        flightID = database.makeReservation(query.getFlight().getFlightId(), query.getFlight().getSeatsAvailable());
+                    } catch (InsufficientSeatsException e){
+                        response = new ServerResponse(query.getId(), 405, flightID);
+                        network.send(response, origin);
+                        break;
+                    }
+                    if (flightID.isEmpty()){
+                        response = new ServerResponse(query.getId(), 404, flightID);
+                        network.send(response, origin);
+                        break;
+                    }
                     response = new ServerResponse(query.getId(), 200, flightID);
                     network.send(response, origin);
                     reservationCallback(response);
@@ -58,7 +79,12 @@ public class Server {
                     break;
                 case 5:
                     flightID = database.getFlightsFrom(query.getFlight().getSource());
-                    response = new ServerResponse(query.getId(), 200, flightID);
+                    if (flightID.isEmpty()){
+                        response = new ServerResponse(query.getId(), 404, flightID);
+                    }
+                    else {
+                        response = new ServerResponse(query.getId(), 200, flightID);
+                    }
                     network.send(response, origin);
                     System.out.println(response.toString());
                     break;
