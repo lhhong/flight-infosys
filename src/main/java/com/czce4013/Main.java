@@ -24,7 +24,6 @@ public class Main {
             failProb =  Float.parseFloat(args[1]);
         }
         UDPCommunicator communicator =  new PoorUDPCommunicator(socketAddress, failProb);
-        //UDPCommunicator communicator =  new UDPCommunicator(socketAddress);
         if (args.length > 0 && args[0].equals("AtMostOnce")) {
             c = new Client(new AtMostOnceNetwork(communicator));
             logger.info("Initialized AtMostOnce network with fail probability of {}.", failProb);

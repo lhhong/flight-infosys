@@ -60,7 +60,6 @@ public class Marshaller {
         }
 
         while (fieldTypeMap.size() > 0) {
-            //byte fieldId = byteList.remove(0);
             String fieldName = unmarshallString(byteList);
             Field field = fieldTypeMap.get(fieldName);
             try {
@@ -87,7 +86,7 @@ public class Marshaller {
             f.setAccessible(true);
             try {
                 Object o = f.get(obj);
-                //logger.debug("Type: {}, Name: {}, Val: {}", type, f.getName(), o);
+                logger.debug("Type: {}, Name: {}, Val: {}", type, f.getName(), o);
                 addObjectToBytes(type, o, res);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -196,7 +195,7 @@ public class Marshaller {
 
         List<?> list = (List<?>) o;
         if (list.size() > Short.MAX_VALUE) {
-            //logger.error("List length is too long, limit it to {}", Short.MAX_VALUE);
+            logger.error("List length is too long, limit it to {}", Short.MAX_VALUE);
         }
         res.addAll(shortToByteList((short) list.size()));
 
@@ -263,7 +262,7 @@ public class Marshaller {
     private static void marshallString(Object o, List<Byte> res) {
         String s = (String) o;
         if (s.length() > Short.MAX_VALUE) {
-            //logger.error("String value is too long, limit it to {}", Short.MAX_VALUE);
+            logger.error("String value is too long, limit it to {}", Short.MAX_VALUE);
         }
 
         res.addAll(shortToByteList((short) s.length()));

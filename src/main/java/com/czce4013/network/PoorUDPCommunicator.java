@@ -32,7 +32,7 @@ public class PoorUDPCommunicator extends UDPCommunicator {
             super.send(data, dest);
         }
         else {
-            //logger.info("Sending failure simulated for {}", data);
+            logger.info("Sending failure simulated for {}", data);
         }
     }
 }
