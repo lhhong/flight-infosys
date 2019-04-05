@@ -17,15 +17,19 @@ public class Client {
 
     public static void main(String[] args){
         Client c;
-        String LocalIPAddress = UDPCommunicator.getIPaddress();
-        InetSocketAddress socketAddress = new InetSocketAddress(LocalIPAddress,2222);
+        String host = "localhost";
+        if (args.length > 0) {
+            host = args[0];
+        }
+        logger.info("Connecting to: {}", host);
+        InetSocketAddress socketAddress = new InetSocketAddress(host,2222);
         float failProb = 0.1F;
-        if (args.length > 1) {
-            failProb =  Float.parseFloat(args[1]);
+        if (args.length > 2) {
+            failProb =  Float.parseFloat(args[2]);
         }
         UDPCommunicator communicator =  new PoorUDPCommunicator(socketAddress, failProb);
         //UDPCommunicator communicator =  new UDPCommunicator(socketAddress);
-        if (args.length > 0 && args[0].equals("AtMostOnce")) {
+        if (args.length > 1 && args[1].equals("AtMostOnce")) {
             c = new Client(new AtMostOnceNetwork(communicator));
             logger.info("Initialized AtMostOnce network with fail probability of {}.", failProb);
         }
